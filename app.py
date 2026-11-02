@@ -122,7 +122,7 @@ with st.sidebar:
     st.subheader("Data")
     st.caption(f"TLE: **{sumber_tle}**, {wib(waktu_tle)}  \nKatalog GCAT: dibangun {muat_data.tanggal_katalog()}")
     if pesan_tle:
-        st.warning(pesan_tle, icon="⚠️")
+        st.caption(f"ℹ️ {pesan_tle}")
     if st.button("Refresh TLE", width="stretch"):
         muat_tabel_satelit.clear()
         analisis_lintasan.clear()
@@ -534,7 +534,7 @@ with tab_data:
         f"""
 | Data | Sumber | Diperbarui | Lisensi |
 |---|---|---|---|
-| Elemen orbit (TLE) {f"{len(df_semua):,}".replace(",", ".")} satelit aktif | [CelesTrak](https://celestrak.org/NORAD/elements/) grup *active* | {sumber_tle}, {wib(waktu_tle)}; cadangan di `data/tle_cadangan.txt` | bebas dipakai dengan atribusi |
+| Elemen orbit (TLE) {f"{len(df_semua):,}".replace(",", ".")} satelit aktif | [CelesTrak](https://celestrak.org/NORAD/elements/) grup *active* | {sumber_tle}, {wib(waktu_tle)}; snapshot harian di `data/tle_cadangan.txt` | bebas dipakai dengan atribusi |
 | Negara, operator, misi per satelit | [GCAT](https://planet4589.org/space/gcat/) (Jonathan McDowell), tabel *satcat* + *psatcat* | katalog dibangun {muat_data.tanggal_katalog()} (`scripts/bangun_katalog.py`) | CC BY 4.0 |
 | Catatan satelit Indonesia | Wikipedia, per baris ada tautan | `data/satelit_indonesia.csv` | CC BY-SA |
 | Batas wilayah | sketsa poligon sendiri di `src/wilayah.py` | - | - |
@@ -601,7 +601,7 @@ digraph G {
         """
 | Langkah | File | Yang terjadi |
 |---|---|---|
-| 1 | `src/muat_data.py` | Unduh TLE grup *active* dari CelesTrak (±16.000 objek). Gagal? Pakai `data/tle_cadangan.txt`. |
+| 1 | `src/muat_data.py` | Unduh TLE grup *active* dari CelesTrak (±16.000 objek). Gagal? Pakai snapshot harian `data/tle_cadangan.txt`. |
 | 2 | `scripts/bangun_katalog.py` | Sekali-sekali: unduh GCAT, saring payload, simpan negara/operator/misi per nomor NORAD. |
 | 3 | `src/klasifikasi.py` | Kelas D → Militer; misi IMG/IMG-R/SIG/EW → pengintai; negara ID → Indonesia. |
 | 4 | `src/orbit.py` | **SGP4** menghitung posisi; **GMST** memutar ke kerangka Bumi; **WGS84** memberi lintang-bujur-tinggi. |

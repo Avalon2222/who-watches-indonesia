@@ -8,7 +8,7 @@ Semua data dalam proyek ini publik. Tidak ada yang berasal dari akun berbayar at
 - **URL:** `https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle`
 - **Asal:** CelesTrak menyalin data pelacakan 18th Space Defense Squadron (US Space Force) yang dipublikasikan lewat Space-Track, lalu menyajikannya tanpa login.
 - **Pembaruan:** beberapa kali sehari. Aplikasi men-cache 3 jam; tombol *Refresh TLE* memaksa unduh ulang.
-- **Cadangan:** `tle_cadangan.txt` adalah salinan yang diunduh pada tanggal yang tertulis di baris pertamanya. Dipakai bila server tidak terjangkau. Posisi dari TLE yang berumur lebih dari beberapa hari bisa meleset beberapa kilometer, dan satelit yang baru diluncurkan tidak akan muncul.
+- **Snapshot harian:** `tle_cadangan.txt` diperbarui setiap hari pukul 05:23 WIB oleh GitHub Actions (`scripts/perbarui_tle.py`), dengan waktu unduh tertulis di baris pertamanya. Server Streamlit Community Cloud tidak selalu bisa menjangkau CelesTrak; dalam kondisi itu aplikasi membaca snapshot ini lewat raw.githubusercontent.com, lalu file yang ikut ter-deploy sebagai pilihan terakhir. Posisi dari TLE berumur satu hari masih akurat dalam orde beberapa kilometer.
 - **Lisensi:** bebas dipakai dengan menyebut CelesTrak sebagai sumber. CelesTrak meminta agar pengguna tidak mengunduh berulang-ulang lebih sering dari 2 jam; caching di aplikasi mengikuti permintaan itu.
 - **Yang tidak ada di sini:** satelit militer yang tidak dipublikasikan orbitnya (sebagian satelit NRO Amerika, dan lain-lain). Mereka memang ada, hanya tidak terlihat.
 

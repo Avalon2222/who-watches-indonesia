@@ -18,6 +18,7 @@ from src import klasifikasi, orbit
 
 FOLDER_DATA = Path(__file__).resolve().parent.parent / "data"
 URL_TLE_AKTIF = "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle"
+URL_TLE_SNAPSHOT = "https://raw.githubusercontent.com/Avalon2222/who-watches-indonesia/main/data/tle_cadangan.txt"
 FILE_TLE_CADANGAN = FOLDER_DATA / "tle_cadangan.txt"
 FILE_KATALOG = FOLDER_DATA / "katalog_satelit.csv"
 FILE_NEGARA = FOLDER_DATA / "kode_negara.csv"
@@ -32,36 +33,57 @@ class HasilTLE:
     pesan: str = ""
 
 
-def ambil_tle(timeout: int = 40, percobaan: int = 2) -> HasilTLE:
+def ambil_tle(timeout: int = 12) -> HasilTLE:
     """
-    Unduh TLE semua satelit aktif dari CelesTrak. Bila gagal (tidak ada internet, server lambat,
-    batas permintaan), pakai salinan cadangan yang disimpan di repo supaya aplikasi tetap jalan.
+    Ambil TLE semua satelit aktif, dari sumber paling segar ke paling aman:
+
+      1. CelesTrak langsung (live, beberapa jam sekali diperbarui).
+      2. Snapshot harian di GitHub repo ini (diperbarui GitHub Actions setiap hari,
+         lihat .github/workflows/perbarui-tle.yml). Berguna bila server tempat aplikasi
+         berjalan tidak bisa menjangkau CelesTrak.
+      3. File data/tle_cadangan.txt yang ikut ter-deploy bersama aplikasi.
+
+    Batas waktu sengaja pendek supaya halaman tidak lama menunggu sumber yang macet.
     """
     galat = ""
-    for _ in range(percobaan):
-        try:
-            r = requests.get(URL_TLE_AKTIF, timeout=timeout)
-            r.raise_for_status()
-            if r.text.count("\n1 ") > 100:
-                return HasilTLE(r.text, "CelesTrak (live)", datetime.now(timezone.utc))
-            galat = "respons CelesTrak tidak berisi TLE"
-        except requests.RequestException as e:
-            galat = str(e)[:120]
-    return HasilTLE(baca_tle_cadangan(), "cadangan di repo", tanggal_tle_cadangan(), f"Gagal mengambil TLE live ({galat}).")
+    try:
+        r = requests.get(URL_TLE_AKTIF, timeout=timeout)
+        r.raise_for_status()
+        if r.text.count("\n1 ") > 100:
+            return HasilTLE(r.text, "CelesTrak (live)", datetime.now(timezone.utc))
+        galat = "respons CelesTrak tidak berisi TLE"
+    except requests.RequestException as e:
+        galat = type(e).__name__
+
+    try:
+        r = requests.get(URL_TLE_SNAPSHOT, timeout=timeout)
+        r.raise_for_status()
+        if r.text.count("\n1 ") > 100:
+            return HasilTLE(r.text, "snapshot harian", tanggal_dari_header(r.text),
+                            f"CelesTrak tidak terjangkau dari server ({galat}); memakai snapshot harian.")
+    except requests.RequestException:
+        pass
+
+    return HasilTLE(baca_tle_cadangan(), "cadangan di repo", tanggal_tle_cadangan(),
+                    f"CelesTrak tidak terjangkau dari server ({galat}); memakai cadangan di repo.")
 
 
 def baca_tle_cadangan() -> str:
     return FILE_TLE_CADANGAN.read_text(encoding="utf-8")
 
 
-def tanggal_tle_cadangan() -> datetime:
-    """Tanggal snapshot ditulis di baris pertama file cadangan: '# CelesTrak active, diunduh 2026-11-02T17:14Z'."""
-    baris1 = FILE_TLE_CADANGAN.open(encoding="utf-8").readline()
+def tanggal_dari_header(teks: str) -> datetime:
+    """Tanggal snapshot ditulis di baris pertama: '# CelesTrak GROUP=active, diunduh 2026-11-02T17:14Z. ...'."""
+    baris1 = teks.split("\n", 1)[0]
     m = re.search(r"(\d{4}-\d{2}-\d{2})T?(\d{2}:\d{2})?", baris1)
     if not m:
         return datetime(2000, 1, 1, tzinfo=timezone.utc)
     jam = m.group(2) or "00:00"
     return datetime.strptime(f"{m.group(1)} {jam}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+
+
+def tanggal_tle_cadangan() -> datetime:
+    return tanggal_dari_header(FILE_TLE_CADANGAN.open(encoding="utf-8").readline())
 
 
 def muat_katalog() -> pd.DataFrame:

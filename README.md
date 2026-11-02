@@ -55,8 +55,9 @@ streamlit run app.py
 ```
 
 Buka `http://localhost:8501`. Jalankan pengujian dengan `python -m pytest tests/ -v` (20 tes, tanpa internet).
-Saat dibuka, aplikasi mengunduh TLE terbaru dari CelesTrak (±2,7 MB). Bila gagal, salinan cadangan di
-`data/tle_cadangan.txt` dipakai secara otomatis dan sidebar menampilkan peringatan.
+Saat dibuka, aplikasi mengunduh TLE terbaru dari CelesTrak (±2,7 MB). Bila CelesTrak tidak terjangkau, aplikasi
+memakai snapshot `data/tle_cadangan.txt` yang diperbarui setiap hari oleh GitHub Actions
+(`.github/workflows/perbarui-tle.yml`), sehingga data orbit paling lama berumur sehari.
 
 ## Cara kerja (ringkas)
 
@@ -91,7 +92,7 @@ Definisi yang dipakai:
 
 | Data | Sumber | Keterangan |
 |---|---|---|
-| TLE semua satelit aktif | [CelesTrak](https://celestrak.org/NORAD/elements/) grup *active* | Diunduh saat aplikasi dibuka, di-cache 3 jam. Cadangan: `data/tle_cadangan.txt` |
+| TLE semua satelit aktif | [CelesTrak](https://celestrak.org/NORAD/elements/) grup *active* | Diunduh saat aplikasi dibuka, di-cache 3 jam. Snapshot harian: `data/tle_cadangan.txt` (GitHub Actions, 05:23 WIB) |
 | Negara, operator, kelas, misi per NORAD | [GCAT](https://planet4589.org/space/gcat/) tabel *satcat* dan *psatcat* | `data/katalog_satelit.csv`, dibangun dengan `scripts/bangun_katalog.py`. Lisensi CC BY 4.0 |
 | Nama negara dan bendera | `data/kode_negara.csv` | Pemetaan kode GCAT → nama Indonesia |
 | Catatan satelit Indonesia | `data/satelit_indonesia.csv` | Operator, fungsi, slot orbit, tautan Wikipedia per baris |
@@ -117,7 +118,9 @@ who-watches-indonesia/
 │   ├── wilayah.py            # poligon Indonesia + ray casting
 │   ├── klasifikasi.py        # kode GCAT → operator/misi/kelompok
 │   └── muat_data.py          # TLE live/cadangan + katalog
-├── scripts/bangun_katalog.py # bangun data/katalog_satelit.csv dari GCAT
+├── scripts/
+│   ├── bangun_katalog.py     # bangun data/katalog_satelit.csv dari GCAT
+│   └── perbarui_tle.py       # snapshot TLE harian (dijalankan GitHub Actions)
 ├── data/                     # katalog, kode negara, catatan satelit Indonesia, TLE cadangan, SUMBER_DATA.md
 ├── docs/                     # BELAJAR.md, LATIHAN.md, screenshots/
 ├── tests/                    # pytest: wilayah, orbit, klasifikasi

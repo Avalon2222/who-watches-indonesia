@@ -44,6 +44,12 @@ def test_klasifikasikan_mengisi_kolom():
     assert hasil.loc[2, "negara_kode"] == "US"
 
 
+def test_tanggal_dari_header_snapshot():
+    t = muat_data.tanggal_dari_header("# CelesTrak GROUP=active, diunduh 2026-11-03T22:23Z. Cadangan ...\n1 25544U")
+    assert (t.year, t.month, t.day, t.hour, t.minute) == (2026, 11, 3, 22, 23)
+    assert muat_data.tanggal_dari_header("tanpa tanggal").year == 2000
+
+
 def test_katalog_dan_cadangan_di_repo_bisa_digabung():
     katalog = muat_data.muat_katalog()
     assert len(katalog) > 20000 and katalog["norad"].is_unique
