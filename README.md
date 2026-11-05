@@ -1,5 +1,7 @@
 # 🛰️ Who Watches Indonesia
 
+[![tests](https://github.com/Avalon2222/who-watches-indonesia/actions/workflows/tests.yml/badge.svg)](https://github.com/Avalon2222/who-watches-indonesia/actions/workflows/tests.yml) [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://who-watches-indonesia.streamlit.app)
+
 > Peta live satelit di atas Indonesia: **satelit Indonesia** vs **satelit asing**, siapa yang sedang lewat sekarang,
 > dan negara mana yang satelit militer serta satelit pencitraannya paling sering melintas di atas wilayah kita.
 > Dihitung langsung dari elemen orbit publik (TLE) dengan Python, sgp4, Plotly, dan Streamlit.
