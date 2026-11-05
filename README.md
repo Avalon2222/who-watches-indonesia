@@ -6,10 +6,19 @@
 > dan negara mana yang satelit militer serta satelit pencitraannya paling sering melintas di atas wilayah kita.
 > Dihitung langsung dari elemen orbit publik (TLE) dengan Python, sgp4, Plotly, dan Streamlit.
 
-*Look up. Someone is already looking down. A live satellite tracker over Indonesia that separates Indonesian
-satellites from foreign ones, counts how often military and imaging satellites of each country pass over the
-archipelago, and shows which geostationary satellites are parked above it permanently. Built from public orbital
-elements (CelesTrak) and the GCAT catalog with Python, sgp4, Plotly and Streamlit.*
+## 🇬🇧 In English
+
+**Look up. Someone is already looking down.** A live satellite tracker over Indonesia that separates Indonesian satellites from foreign ones, counts how often each country's military and imaging satellites pass over the archipelago, and shows which geostationary satellites are parked above it permanently.
+
+- **See** every satellite above Indonesia right now, grouped by owner and mission.
+- **Rank** countries by reconnaissance passes over the next 6 to 48 hours, military vs commercial.
+- **Track** any satellite: ground track, orbit data, and its next passes over Indonesia.
+
+**Built with:** Python, sgp4, pandas, NumPy, Plotly, Streamlit  
+**Data:** Public orbital elements (TLE) from CelesTrak and the GCAT catalog (Jonathan McDowell)  
+**Engineering:** Orbit propagation computed in-app (TLE → SGP4 → lat/lon), pytest suite with CI, and a scheduled TLE refresh workflow
+
+*The rest of this README is in Indonesian.*
 
 **🚀 Coba langsung di browser:** [who-watches-indonesia.streamlit.app](https://who-watches-indonesia.streamlit.app)
 
