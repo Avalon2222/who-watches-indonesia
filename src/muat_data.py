@@ -33,6 +33,11 @@ class HasilTLE:
     pesan: str = ""
 
 
+def _kolom_teks(kolom: pd.Series) -> bool:
+    """True untuk kolom teks. Di pandas 3 teks dibaca sebagai dtype `str`, bukan `object` lagi."""
+    return kolom.dtype == object or isinstance(kolom.dtype, pd.StringDtype)
+
+
 def ambil_tle(timeout: int = 12) -> HasilTLE:
     """
     Ambil TLE semua satelit aktif, dari sumber paling segar ke paling aman:
@@ -105,7 +110,7 @@ def muat_kode_negara() -> pd.DataFrame:
 def muat_catatan_indonesia() -> pd.DataFrame:
     df = pd.read_csv(FILE_CATATAN_ID, dtype={"norad": "Int64"})
     for kolom in df.columns:
-        if df[kolom].dtype == object:
+        if _kolom_teks(df[kolom]):
             df[kolom] = df[kolom].fillna("")
     return df
 
