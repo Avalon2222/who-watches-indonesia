@@ -91,3 +91,13 @@ def test_rentang_waktu_panjang_dan_langkah():
     assert len(waktu) == 12                     # 120 menit / 10, ujung tidak ikut
     assert waktu[1] - waktu[0] == timedelta(minutes=10)
     assert waktu.tz is None                     # sgp4 butuh waktu naive (UTC)
+
+
+def test_kolom_teks_kenal_dtype_pandas_3():
+    import pandas as pd
+    assert muat_data._kolom_teks(pd.Series(["a", None], dtype="str"))
+    assert muat_data._kolom_teks(pd.Series(["a", None], dtype=object))
+    assert not muat_data._kolom_teks(pd.Series([1.0, None]))
+    df = muat_data.muat_catatan_indonesia()
+    teks = [k for k in df.columns if muat_data._kolom_teks(df[k])]
+    assert teks and not df[teks].isna().any().any()
