@@ -101,3 +101,20 @@ def test_potong_di_garis_tanggal_menyisipkan_nan():
                           "lat": [0.0, 1.0, 2.0, 3.0], "lon": [170.0, 179.0, -179.0, -170.0], "alt_km": [500.0] * 4})
     hasil = orbit.potong_di_garis_tanggal(jejak)
     assert len(hasil) == 5 and hasil["lon"].isna().sum() == 1
+
+
+def test_teme_ke_geodetik_bolak_balik():
+    # Buat titik dari lat/lon/alt yang diketahui, putar ke TEME, lalu pastikan fungsi mengembalikannya lagi.
+    lat0, lon0, alt0 = np.radians([-6.2, 45.0, 0.0]), np.radians([106.8, -120.0, 0.0]), np.array([550.0, 20200.0, 35786.0])
+    jd = np.array([2461346.5, 2461346.75, 2461347.1])
+    n = orbit.R_BUMI_KM / np.sqrt(1 - orbit.E2 * np.sin(lat0) ** 2)
+    x_e = (n + alt0) * np.cos(lat0) * np.cos(lon0)
+    y_e = (n + alt0) * np.cos(lat0) * np.sin(lon0)
+    z_e = (n * (1 - orbit.E2) + alt0) * np.sin(lat0)
+    theta = orbit.gmst_rad(jd)
+    r_teme = np.stack([np.cos(theta) * x_e - np.sin(theta) * y_e,
+                       np.sin(theta) * x_e + np.cos(theta) * y_e, z_e], axis=-1)
+    lat, lon, alt = orbit.teme_ke_geodetik(r_teme, jd)
+    assert lat == pytest.approx(np.degrees(lat0), abs=1e-6)
+    assert lon == pytest.approx(np.degrees(lon0), abs=1e-6)
+    assert alt == pytest.approx(alt0, abs=1e-3)
