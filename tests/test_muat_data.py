@@ -101,3 +101,28 @@ def test_kolom_teks_kenal_dtype_pandas_3():
     df = muat_data.muat_catatan_indonesia()
     teks = [k for k in df.columns if muat_data._kolom_teks(df[k])]
     assert teks and not df[teks].isna().any().any()
+
+
+def test_tanggal_tle_cadangan_dari_header_repo():
+    t = muat_data.tanggal_tle_cadangan()
+    assert t.tzinfo == timezone.utc
+    assert t > datetime(2026, 1, 1, tzinfo=timezone.utc)   # bukan nilai jatuh 2000-01-01
+
+
+def test_tanggal_katalog(monkeypatch, tmp_path):
+    assert muat_data.tanggal_katalog() != "?"
+    palsu = tmp_path / "katalog.csv"
+    palsu.write_text("# Sumber: GCAT. Dibangun 2026-11-02.\nnorad\n", encoding="utf-8")
+    monkeypatch.setattr(muat_data, "FILE_KATALOG", palsu)
+    assert muat_data.tanggal_katalog() == "2026-11-02"
+    palsu.write_text("norad\n", encoding="utf-8")
+    assert muat_data.tanggal_katalog() == "?"
+
+
+def test_muat_semua_pakai_tle_yang_diberikan():
+    teks = muat_data.FILE_TLE_CADANGAN.read_text(encoding="utf-8")
+    tle = muat_data.HasilTLE(teks=teks, sumber="cadangan di repo", diambil_pada=datetime.now(timezone.utc))
+    df, kembali = muat_data.muat_semua(tle)
+    assert kembali is tle
+    assert len(df) > 1000
+    assert {"norad", "line1", "line2"} <= set(df.columns)
