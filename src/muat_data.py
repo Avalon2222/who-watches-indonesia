@@ -87,8 +87,13 @@ def tanggal_dari_header(teks: str) -> datetime:
     return datetime.strptime(f"{m.group(1)} {jam}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
 
 
+def _baris_pertama(path: Path) -> str:
+    with path.open(encoding="utf-8") as f:
+        return f.readline()
+
+
 def tanggal_tle_cadangan() -> datetime:
-    return tanggal_dari_header(FILE_TLE_CADANGAN.open(encoding="utf-8").readline())
+    return tanggal_dari_header(_baris_pertama(FILE_TLE_CADANGAN))
 
 
 def muat_katalog() -> pd.DataFrame:
@@ -99,7 +104,7 @@ def muat_katalog() -> pd.DataFrame:
 
 
 def tanggal_katalog() -> str:
-    m = re.search(r"Dibangun (\d{4}-\d{2}-\d{2})", FILE_KATALOG.open(encoding="utf-8").readline())
+    m = re.search(r"Dibangun (\d{4}-\d{2}-\d{2})", _baris_pertama(FILE_KATALOG))
     return m.group(1) if m else "?"
 
 
