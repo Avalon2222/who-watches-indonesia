@@ -64,3 +64,11 @@ def test_katalog_dan_cadangan_di_repo_bisa_digabung():
     assert {"TELKOM 3S", "LAPAN-A3"} <= set(df.loc[df["kelompok"] == "Indonesia", "nama"])
     catatan = muat_data.muat_catatan_indonesia()
     assert set(catatan["norad"]) <= set(df["norad"])
+
+
+def test_kode_dasar_buang_penanda_gcat():
+    assert klasifikasi.kode_dasar("IMG-R?") == "IMG-R"
+    assert klasifikasi.kode_dasar("COM/MET-RO") == "COM"
+    assert klasifikasi.kode_dasar(" SIG* ") == "SIG"
+    assert klasifikasi.kode_dasar("") == "-"
+    assert klasifikasi.label_misi("???") == "Lainnya / tidak diketahui"

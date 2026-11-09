@@ -42,3 +42,9 @@ def test_ray_casting_persegi_sederhana():
     persegi = [(0.0, 0.0), (10.0, 0.0), (10.0, 10.0), (0.0, 10.0)]
     assert wilayah.di_dalam_poligon(np.array([5.0]), np.array([5.0]), persegi)[0]
     assert not wilayah.di_dalam_poligon(np.array([5.0]), np.array([15.0]), persegi)[0]
+
+
+def test_di_kawasan_kotak_peta():
+    lat = np.array([-6.2, 35.7, -33.9, 15.0])
+    lon = np.array([106.8, 139.7, 151.2, 150.0])   # Jakarta, Tokyo, Sydney, pojok kotak
+    assert wilayah.di_kawasan(lat, lon).tolist() == [True, False, False, True]
