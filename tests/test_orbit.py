@@ -118,3 +118,26 @@ def test_teme_ke_geodetik_bolak_balik():
     assert lat == pytest.approx(np.degrees(lat0), abs=1e-6)
     assert lon == pytest.approx(np.degrees(lon0), abs=1e-6)
     assert alt == pytest.approx(alt0, abs=1e-3)
+
+
+def test_posisi_saat_buang_satelit_gagal():
+    df = orbit.parse_tle(TLE_CONTOH)
+    # TLE rusak (eksentrisitas > 1) tidak bisa dipropagasi dan harus dibuang dari hasil.
+    rusak = df.iloc[[0]].copy()
+    rusak["line2"] = rusak["line2"].str.slice(0, 26) + "9999999" + rusak["line2"].str.slice(33)
+    gabung = pd.concat([df, rusak], ignore_index=True)
+    t0 = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+    pos = orbit.posisi_saat(gabung, t0)
+    assert len(pos) == 2
+    assert {"lat", "lon", "alt_km"} <= set(pos.columns)
+    assert pos.index.tolist() == [0, 1]
+    assert len(gabung) == 3 and "lat" not in gabung   # input tidak diubah
+
+
+def test_jejak_satu_orbit_iss():
+    df = orbit.parse_tle(TLE_CONTOH)
+    iss = df[df["norad"] == 25544].iloc[0]
+    t0 = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+    j = orbit.jejak(iss["line1"], iss["line2"], t0, menit=10, langkah_detik=60)
+    assert len(j) == 11 and j["waktu"].iloc[-1] == t0 + timedelta(minutes=10)
+    assert j[["lat", "lon", "alt_km"]].notna().all().all()
