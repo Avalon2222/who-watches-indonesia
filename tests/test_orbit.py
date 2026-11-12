@@ -141,3 +141,36 @@ def test_jejak_satu_orbit_iss():
     j = orbit.jejak(iss["line1"], iss["line2"], t0, menit=10, langkah_detik=60)
     assert len(j) == 11 and j["waktu"].iloc[-1] == t0 + timedelta(minutes=10)
     assert j[["lat", "lon", "alt_km"]].notna().all().all()
+
+
+def test_potong_di_garis_tanggal_jaga_tipe_dan_posisi():
+    jejak = pd.DataFrame({"waktu": pd.date_range("2026-11-02", periods=6, freq="30s"),
+                          "lat": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0],
+                          "lon": [178.0, -178.0, -170.0, 170.0, 179.0, -179.0], "alt_km": [500.0] * 6})
+    hasil = orbit.potong_di_garis_tanggal(jejak)
+    assert len(hasil) == 9  # tiga lompatan: dua lewat garis tanggal, satu kembali
+    assert hasil["lon"].isna().sum() == 3
+    assert list(hasil.index[hasil["lon"].isna()]) == [1, 4, 7]
+    assert str(hasil["waktu"].dtype).startswith("datetime64")
+    assert hasil["lat"].dtype == float
+    assert hasil["waktu"].is_monotonic_increasing
+
+
+def test_potong_di_garis_tanggal_tanpa_lompatan():
+    jejak = pd.DataFrame({"waktu": pd.date_range("2026-11-02", periods=3, freq="30s"),
+                          "lat": [0.0, 1.0, 2.0], "lon": [100.0, 101.0, 102.0], "alt_km": [500.0] * 3})
+    assert orbit.potong_di_garis_tanggal(jejak) is jejak
+
+
+def test_parse_tle_lewati_angka_rusak():
+    rusak = TLE_CONTOH.splitlines()
+    rusak[1] = rusak[1][:2] + "ABCDE" + rusak[1][7:]  # nomor NORAD bukan angka
+    df = orbit.parse_tle("\n".join(rusak))
+    assert len(df) == 1
+
+
+def test_hitung_lintasan_tanpa_waktu():
+    hasil = orbit.hitung_lintasan(np.zeros((3, 0), bool), pd.DatetimeIndex([]), 1.0)
+    assert len(hasil) == 3
+    assert (hasil["jumlah_lintasan"] == 0).all()
+    assert hasil["lintasan_pertama"].isna().all()
