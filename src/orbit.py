@@ -198,12 +198,16 @@ def potong_di_garis_tanggal(df_jejak: pd.DataFrame) -> pd.DataFrame:
     lompat = np.abs(np.diff(df_jejak["lon"].to_numpy())) > 180
     if not lompat.any():
         return df_jejak
-    baris = []
-    for i, (_, r) in enumerate(df_jejak.iterrows()):
-        baris.append(r)
-        if i < len(lompat) and lompat[i]:
-            baris.append(pd.Series({k: (np.nan if k != "waktu" else r["waktu"]) for k in df_jejak.columns}))
-    return pd.DataFrame(baris).reset_index(drop=True)
+    # Baris pemisah disisipkan tepat setelah titik sebelum lompatan (indeks i + 0,5), tanpa iterrows,
+    # supaya tipe kolom (datetime, float) tetap utuh.
+    d = df_jejak.reset_index(drop=True)
+    posisi = np.flatnonzero(lompat)
+    sela = d.iloc[posisi].copy()
+    for k in sela.columns:
+        if k != "waktu":
+            sela[k] = np.nan
+    sela.index = posisi + 0.5
+    return pd.concat([d, sela]).sort_index().reset_index(drop=True)
 
 
 # ----------------------------------------------------------------------------
