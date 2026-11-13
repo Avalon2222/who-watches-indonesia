@@ -174,3 +174,12 @@ def test_hitung_lintasan_tanpa_waktu():
     assert len(hasil) == 3
     assert (hasil["jumlah_lintasan"] == 0).all()
     assert hasil["lintasan_pertama"].isna().all()
+
+
+def test_rentang_waktu_utc_tanpa_ujung_akhir():
+    from src import orbit as o
+
+    wib = timezone(timedelta(hours=7))
+    t = o.rentang_waktu(datetime(2026, 11, 13, 7, 0, tzinfo=wib), jam=1, langkah_menit=15)
+    assert len(t) == 4                                       # 00:00, 00:15, 00:30, 00:45 UTC
+    assert t[0] == pd.Timestamp("2026-11-13 00:00") and t.tz is None
