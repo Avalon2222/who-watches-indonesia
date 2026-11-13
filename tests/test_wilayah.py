@@ -48,3 +48,19 @@ def test_di_kawasan_kotak_peta():
     lat = np.array([-6.2, 35.7, -33.9, 15.0])
     lon = np.array([106.8, 139.7, 151.2, 150.0])   # Jakarta, Tokyo, Sydney, pojok kotak
     assert wilayah.di_kawasan(lat, lon).tolist() == [True, False, False, True]
+
+
+def test_poligon_tertutup_dan_panjang_sama():
+    from src import wilayah as w
+
+    lon, lat = w.poligon_lon_lat()
+    assert len(lon) == len(lat) == len(w.POLIGON_INDONESIA) + 1
+    assert (lon[0], lat[0]) == (lon[-1], lat[-1])
+
+
+def test_di_kawasan_terima_skalar_dan_array():
+    from src import wilayah as w
+
+    assert bool(w.di_kawasan(-6.2, 106.8))                   # Jakarta
+    hasil = w.di_kawasan([-6.2, 51.5], [106.8, -0.1])        # Jakarta, London
+    assert hasil.tolist() == [True, False]
