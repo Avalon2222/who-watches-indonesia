@@ -41,4 +41,15 @@ def test_gabungkan_hanya_payload_bernomor_norad():
     sputnik, telkom = kat.iloc[0], kat.iloc[1]
     assert sputnik["tanggal_luncur"] == "1957-10-04" and sputnik["massa_kg"] == 84
     assert telkom["negara_kode"] == "ID" and telkom["kategori_gcat"] == "COM"
-    assert telkom["program"] == ""                  # program kosong dari GCAT dibiarkan kosong
+    assert telkom["program"] == "-"                 # program kosong ditulis "-" seperti kelas dan kategori
+
+
+def test_main_dari_folder_lokal(tmp_path):
+    (tmp_path / "satcat.tsv").write_text(SATCAT, encoding="utf-8")
+    (tmp_path / "psatcat.tsv").write_text(PSATCAT, encoding="utf-8")
+    keluaran = tmp_path / "out" / "katalog.csv"
+    assert bk.main(["--dari", str(tmp_path), "--keluaran", str(keluaran)]) == 0
+    baris_pertama = keluaran.read_text(encoding="utf-8").splitlines()[0]
+    assert baris_pertama.startswith("# Sumber: GCAT") and "Dibangun 20" in baris_pertama
+    df = pd.read_csv(keluaran, comment="#")
+    assert df["norad"].tolist() == [2, 41591]
