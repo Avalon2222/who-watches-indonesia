@@ -72,7 +72,7 @@ def gabungkan(satcat: pd.DataFrame, psatcat: pd.DataFrame) -> pd.DataFrame:
         "pemilik": df["Owner"],
         "kelas": df["Class"].fillna("-").replace("", "-"),
         "kategori_gcat": df["Category"].fillna("-").replace("", "-"),
-        "program": df["Program"].fillna("-"),
+        "program": df["Program"].fillna("-").replace("", "-"),
         "orbit_gcat": df["OpOrbit"],
         "tanggal_luncur": pd.to_datetime(df["LDate"].str.slice(0, 11), format="%Y %b %d", errors="coerce").dt.strftime("%Y-%m-%d"),
         "massa_kg": pd.to_numeric(df["Mass"], errors="coerce"),
