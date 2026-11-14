@@ -112,8 +112,11 @@ def tentukan_kelompok(negara_kode: str, operator: str, misi: str, terkatalog: bo
 
 def tebak_dari_nama(nama: str) -> tuple[str, str, str] | None:
     """(negara_kode, kelas, kategori) berdasarkan pola nama, atau None bila tidak dikenali."""
+    if not isinstance(nama, str):
+        return None
+    nama = nama.strip().upper()
     for pola, negara, kelas, kategori in POLA_NAMA:
-        if re.search(pola, nama.upper()):
+        if re.search(pola, nama):
             return negara, kelas, kategori
     return None
 

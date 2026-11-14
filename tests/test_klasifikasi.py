@@ -79,3 +79,9 @@ def test_kode_dasar_sel_kosong():
     assert klasifikasi.kode_dasar(None) == "-"
     assert klasifikasi.kode_dasar("") == "-"
     assert klasifikasi.label_misi(float("nan")) == "Lainnya / tidak diketahui"
+
+
+def test_tebak_dari_nama_kosong_dan_berspasi():
+    assert klasifikasi.tebak_dari_nama(float("nan")) is None
+    assert klasifikasi.tebak_dari_nama(None) is None
+    assert klasifikasi.tebak_dari_nama("  starlink-1234") == ("US", "B", "COM")
