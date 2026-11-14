@@ -72,3 +72,10 @@ def test_kode_dasar_buang_penanda_gcat():
     assert klasifikasi.kode_dasar(" SIG* ") == "SIG"
     assert klasifikasi.kode_dasar("") == "-"
     assert klasifikasi.label_misi("???") == "Lainnya / tidak diketahui"
+
+
+def test_kode_dasar_sel_kosong():
+    assert klasifikasi.kode_dasar(float("nan")) == "-"
+    assert klasifikasi.kode_dasar(None) == "-"
+    assert klasifikasi.kode_dasar("") == "-"
+    assert klasifikasi.label_misi(float("nan")) == "Lainnya / tidak diketahui"
