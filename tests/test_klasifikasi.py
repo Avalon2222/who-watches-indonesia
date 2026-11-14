@@ -85,3 +85,8 @@ def test_tebak_dari_nama_kosong_dan_berspasi():
     assert klasifikasi.tebak_dari_nama(float("nan")) is None
     assert klasifikasi.tebak_dari_nama(None) is None
     assert klasifikasi.tebak_dari_nama("  starlink-1234") == ("US", "B", "COM")
+
+
+def test_tentukan_kelompok_kode_negara_huruf_kecil():
+    assert klasifikasi.tentukan_kelompok("id", "Militer", "Komunikasi") == "Indonesia"
+    assert klasifikasi.tentukan_kelompok(" ID ", "Komersial", "Pencitraan optik") == "Indonesia"
