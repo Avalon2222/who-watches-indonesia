@@ -79,8 +79,10 @@ POLA_NAMA = [
 
 
 def kode_dasar(kategori_gcat: str) -> str:
-    """'IMG-R?' -> 'IMG-R'; 'COM/MET-RO' -> 'COM'; 'SIG*' -> 'SIG'."""
-    k = str(kategori_gcat).strip()
+    """'IMG-R?' -> 'IMG-R'; 'COM/MET-RO' -> 'COM'; 'SIG*' -> 'SIG'. Sel kosong -> '-'."""
+    if not isinstance(kategori_gcat, str):
+        return "-"  # NaN dari pandas, jangan sampai jadi kode "nan"
+    k = kategori_gcat.strip()
     k = re.split(r"[/?*]", k)[0]
     return k or "-"
 
