@@ -101,7 +101,7 @@ def label_misi(kategori_gcat: str) -> str:
 def tentukan_kelompok(negara_kode: str, operator: str, misi: str, terkatalog: bool = True) -> str:
     if not terkatalog:
         return "Belum terkatalog"
-    if negara_kode == "ID":
+    if str(negara_kode).strip().upper() == "ID":  # "id" atau " ID" dari input manual tetap Indonesia
         return "Indonesia"
     if operator == "Militer":
         return "Militer asing"
