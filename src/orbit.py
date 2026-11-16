@@ -42,7 +42,7 @@ def parse_tle(teks: str) -> pd.DataFrame:
             nama = baris[i - 1].strip() if i > 0 and not baris[i - 1][:2] in ("1 ", "2 ") else ""
             l1, l2 = baris[i], baris[i + 1]
             try:
-                norad = int(l1[2:7])
+                norad = _norad(l1[2:7])
                 epoch = _epoch_tle(l1)
                 inklinasi = float(l2[8:16])
                 mean_motion = float(l2[52:63])
@@ -55,6 +55,21 @@ def parse_tle(teks: str) -> pd.DataFrame:
             i += 1
     df = pd.DataFrame(rekaman, columns=["norad", "nama", "line1", "line2", "epoch", "inklinasi_deg", "mean_motion"])
     return df.drop_duplicates("norad").reset_index(drop=True)
+
+
+def _norad(kolom: str) -> int:
+    """
+    Nomor NORAD dari kolom 3-7 baris 1. Katalog di atas 99999 memakai format Alpha-5:
+    huruf pertama menggantikan dua digit (A=10 ... Z=33, tanpa I dan O), mis. "T0002" = 270002.
+    """
+    kolom = kolom.strip()
+    if kolom[:1].isalpha():
+        huruf = kolom[0].upper()
+        if huruf in "IO":
+            raise ValueError(f"Alpha-5 tidak memakai huruf {huruf}")
+        nilai = ord(huruf) - ord("A") + 10 - (huruf > "I") - (huruf > "O")
+        return nilai * 10000 + int(kolom[1:])
+    return int(kolom)
 
 
 def _epoch_tle(line1: str) -> datetime:
