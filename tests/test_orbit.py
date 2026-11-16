@@ -183,3 +183,18 @@ def test_rentang_waktu_utc_tanpa_ujung_akhir():
     t = o.rentang_waktu(datetime(2026, 11, 13, 7, 0, tzinfo=wib), jam=1, langkah_menit=15)
     assert len(t) == 4                                       # 00:00, 00:15, 00:30, 00:45 UTC
     assert t[0] == pd.Timestamp("2026-11-13 00:00") and t.tz is None
+
+
+def test_rentang_waktu_tanpa_zona_dianggap_utc():
+    t = orbit.rentang_waktu(datetime(2026, 11, 13, 0, 0), jam=0.5, langkah_menit=10)
+    assert list(t) == [pd.Timestamp("2026-11-13 00:00"), pd.Timestamp("2026-11-13 00:10"), pd.Timestamp("2026-11-13 00:20")]
+
+
+@pytest.mark.parametrize("mm", [float("nan"), 0.0, -1.0, None])
+def test_jenis_orbit_dan_periode_untuk_mean_motion_tidak_valid(mm):
+    assert orbit.jenis_orbit(mm, 51.6) == "Tidak diketahui"
+    assert np.isnan(orbit.periode_menit(mm))
+
+
+def test_periode_menit_iss_sekitar_93_menit():
+    assert orbit.periode_menit(15.4915) == pytest.approx(92.95, abs=0.05)
