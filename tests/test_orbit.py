@@ -198,3 +198,14 @@ def test_jenis_orbit_dan_periode_untuk_mean_motion_tidak_valid(mm):
 
 def test_periode_menit_iss_sekitar_93_menit():
     assert orbit.periode_menit(15.4915) == pytest.approx(92.95, abs=0.05)
+
+
+def test_parse_tle_nomor_norad_alpha5():
+    l1 = TLE_CONTOH.splitlines()[1].replace("25544", "T0002", 1)
+    l2 = TLE_CONTOH.splitlines()[2].replace("25544", "T0002", 1)
+    df = orbit.parse_tle("UJI ALPHA5\n" + l1 + "\n" + l2)
+    assert len(df) == 1
+    assert df.loc[0, "norad"] == 270002
+    assert orbit._norad("A0001") == 100001
+    assert orbit._norad("J0000") == 180000
+    assert orbit._norad("Z9999") == 339999
