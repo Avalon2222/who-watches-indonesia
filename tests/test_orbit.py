@@ -209,3 +209,9 @@ def test_parse_tle_nomor_norad_alpha5():
     assert orbit._norad("A0001") == 100001
     assert orbit._norad("J0000") == 180000
     assert orbit._norad("Z9999") == 339999
+
+
+def test_parse_tle_buang_awalan_0_format_3le():
+    teks = TLE_CONTOH.replace("ISS (ZARYA)", "0 ISS (ZARYA)").replace("TELKOM 3S", "0 TELKOM 3S")
+    df = orbit.parse_tle(teks)
+    assert list(df["nama"]) == ["ISS (ZARYA)", "TELKOM 3S"]
