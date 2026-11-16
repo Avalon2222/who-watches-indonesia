@@ -73,7 +73,10 @@ def jenis_orbit(mean_motion: float, inklinasi_deg: float) -> str:
       < 1,5 putaran/hari                    -> HEO / MEO tinggi
       1,5 - 5 putaran/hari                  -> MEO (misalnya GPS: 2 putaran/hari)
       > 5 putaran/hari                      -> LEO (orbit rendah, 90-120 menit per putaran)
+    Nilai kosong atau tidak positif -> "Tidak diketahui" (sebelumnya NaN lolos sebagai LEO).
     """
+    if mean_motion is None or not np.isfinite(mean_motion) or mean_motion <= 0:
+        return "Tidak diketahui"
     if 0.9 <= mean_motion <= 1.1:
         return "GEO" if inklinasi_deg < 10 else "GSO miring"
     if mean_motion < 1.5:
@@ -84,7 +87,12 @@ def jenis_orbit(mean_motion: float, inklinasi_deg: float) -> str:
 
 
 def periode_menit(mean_motion: float) -> float:
-    """Lama satu putaran orbit dalam menit (1440 menit per hari dibagi jumlah putaran per hari)."""
+    """Lama satu putaran orbit dalam menit (1440 menit per hari dibagi jumlah putaran per hari).
+
+    Mean motion kosong, nol, atau negatif menghasilkan NaN, bukan ZeroDivisionError.
+    """
+    if mean_motion is None or not np.isfinite(mean_motion) or mean_motion <= 0:
+        return float("nan")
     return 1440.0 / mean_motion
 
 
