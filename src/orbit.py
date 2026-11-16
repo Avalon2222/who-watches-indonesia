@@ -272,6 +272,11 @@ def daftar_lintasan(mask_1d: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit:
 
 
 def rentang_waktu(mulai: datetime, jam: float, langkah_menit: float) -> pd.DatetimeIndex:
-    """Deret waktu dari `mulai` sepanjang `jam` jam dengan langkah `langkah_menit` menit (UTC)."""
-    mulai = mulai.astimezone(timezone.utc).replace(tzinfo=None)
+    """Deret waktu dari `mulai` sepanjang `jam` jam dengan langkah `langkah_menit` menit (UTC).
+
+    `mulai` tanpa zona waktu dianggap UTC, sama seperti `ke_jd`. Sebelumnya `astimezone`
+    menganggapnya waktu lokal mesin, jadi di laptop WIB jadwal lintasan bergeser 7 jam.
+    """
+    if mulai.tzinfo is not None:
+        mulai = mulai.astimezone(timezone.utc).replace(tzinfo=None)
     return pd.date_range(mulai, mulai + timedelta(hours=jam), freq=f"{int(langkah_menit * 60)}s", inclusive="left")
