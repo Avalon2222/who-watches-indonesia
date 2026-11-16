@@ -215,3 +215,11 @@ def test_parse_tle_buang_awalan_0_format_3le():
     teks = TLE_CONTOH.replace("ISS (ZARYA)", "0 ISS (ZARYA)").replace("TELKOM 3S", "0 TELKOM 3S")
     df = orbit.parse_tle(teks)
     assert list(df["nama"]) == ["ISS (ZARYA)", "TELKOM 3S"]
+
+
+def test_parse_tle_lewati_pasangan_norad_tidak_cocok():
+    b = TLE_CONTOH.splitlines()
+    # baris 1 ISS dipasangkan dengan baris 2 TELKOM 3S: bukan satu satelit
+    teks = "\n".join(["CAMPUR", b[1], b[5], b[3], b[4], b[5]])
+    df = orbit.parse_tle(teks)
+    assert list(df["norad"]) == [41944]

@@ -32,7 +32,7 @@ def parse_tle(teks: str) -> pd.DataFrame:
     Ubah teks TLE tiga baris (nama, baris 1, baris 2) menjadi DataFrame.
 
     Kolom: norad, nama, line1, line2, epoch (UTC), inklinasi_deg, mean_motion (putaran/hari).
-    Baris yang rusak dilewati. Duplikat nomor NORAD diambil yang pertama.
+    Baris yang rusak, atau pasangan baris 1-2 dengan nomor NORAD berbeda, dilewati. Duplikat nomor NORAD diambil yang pertama.
     """
     baris = [b.rstrip() for b in teks.splitlines() if b.strip()]
     rekaman = []
@@ -46,6 +46,9 @@ def parse_tle(teks: str) -> pd.DataFrame:
             l1, l2 = baris[i], baris[i + 1]
             try:
                 norad = _norad(l1[2:7])
+                if _norad(l2[2:7]) != norad:
+                    # Baris 1 dan baris 2 milik satelit berbeda (file terpotong atau tercampur).
+                    raise ValueError("nomor NORAD baris 1 dan 2 tidak sama")
                 epoch = _epoch_tle(l1)
                 inklinasi = float(l2[8:16])
                 mean_motion = float(l2[52:63])
