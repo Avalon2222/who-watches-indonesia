@@ -82,13 +82,13 @@ def kode_dasar(kategori_gcat: str) -> str:
     """'IMG-R?' -> 'IMG-R'; 'COM/MET-RO' -> 'COM'; 'SIG*' -> 'SIG'. Sel kosong -> '-'."""
     if not isinstance(kategori_gcat, str):
         return "-"  # NaN dari pandas, jangan sampai jadi kode "nan"
-    k = kategori_gcat.strip()
+    k = kategori_gcat.strip().upper()  # "img-r" dari input manual tetap dikenali
     k = re.split(r"[/?*]", k)[0]
     return k or "-"
 
 
 def label_operator(kelas: str) -> str:
-    k = str(kelas).strip()
+    k = str(kelas).strip().upper()
     if "D" in k:                # D, BD, CD -> dioperasikan (sebagian) oleh militer
         return OPERATOR["D"]
     return OPERATOR.get(k[:1], "Tidak diketahui")

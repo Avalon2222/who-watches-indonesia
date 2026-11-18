@@ -96,3 +96,9 @@ def test_tanggal_dari_header_dengan_spasi_atau_tanpa_jam():
     t = muat_data.tanggal_dari_header("# diunduh 2026-11-02 17:14 UTC")
     assert (t.hour, t.minute) == (17, 14)
     assert muat_data.tanggal_dari_header("# Dibangun 2026-11-02").hour == 0
+
+
+def test_kode_gcat_huruf_kecil_tetap_dikenali():
+    assert klasifikasi.label_misi(" img-r? ") == "Pencitraan radar (SAR)"
+    assert klasifikasi.label_operator("d") == "Militer"
+    assert klasifikasi.label_operator("b") == "Komersial"
