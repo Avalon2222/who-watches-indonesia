@@ -100,6 +100,15 @@ def _epoch_tle(line1: str) -> datetime:
     return datetime(tahun, 1, 1, tzinfo=timezone.utc) + timedelta(days=hari - 1)
 
 
+def _angka_atau_nan(nilai) -> float:
+    """float(nilai), atau NaN untuk None, pd.NA, dan teks yang bukan angka."""
+    try:
+        hasil = float(nilai)
+    except (TypeError, ValueError):
+        return float("nan")
+    return hasil
+
+
 def jenis_orbit(mean_motion: float, inklinasi_deg: float) -> str:
     """
     Tebak jenis orbit dari jumlah putaran per hari.
@@ -110,7 +119,9 @@ def jenis_orbit(mean_motion: float, inklinasi_deg: float) -> str:
       > 5 putaran/hari                      -> LEO (orbit rendah, 90-120 menit per putaran)
     Nilai kosong atau tidak positif -> "Tidak diketahui" (sebelumnya NaN lolos sebagai LEO).
     """
-    if mean_motion is None or not np.isfinite(mean_motion) or mean_motion <= 0:
+    mean_motion = _angka_atau_nan(mean_motion)
+    inklinasi_deg = _angka_atau_nan(inklinasi_deg)
+    if not np.isfinite(mean_motion) or mean_motion <= 0:
         return "Tidak diketahui"
     if 0.9 <= mean_motion <= 1.1:
         return "GEO" if inklinasi_deg < 10 else "GSO miring"
@@ -126,7 +137,8 @@ def periode_menit(mean_motion: float) -> float:
 
     Mean motion kosong, nol, atau negatif menghasilkan NaN, bukan ZeroDivisionError.
     """
-    if mean_motion is None or not np.isfinite(mean_motion) or mean_motion <= 0:
+    mean_motion = _angka_atau_nan(mean_motion)
+    if not np.isfinite(mean_motion) or mean_motion <= 0:
         return float("nan")
     return 1440.0 / mean_motion
 

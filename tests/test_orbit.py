@@ -249,3 +249,11 @@ def test_parse_tle_lewati_baris_dengan_checksum_salah():
     assert df.empty
     assert orbit._checksum_ok(baris[1]) and orbit._checksum_ok(baris[2])
     assert orbit._checksum_ok(baris[1][:68])  # tanpa kolom checksum tetap diterima
+
+
+def test_jenis_orbit_dan_periode_aman_untuk_pd_na_dan_teks():
+    assert orbit.jenis_orbit(pd.NA, 50.0) == "Tidak diketahui"
+    assert orbit.jenis_orbit("15.5", "53") == "LEO"
+    assert orbit.jenis_orbit("abc", 0) == "Tidak diketahui"
+    assert np.isnan(orbit.periode_menit(pd.NA))
+    assert orbit.periode_menit("2") == 720.0
