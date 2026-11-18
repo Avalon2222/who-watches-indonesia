@@ -257,3 +257,14 @@ def test_jenis_orbit_dan_periode_aman_untuk_pd_na_dan_teks():
     assert orbit.jenis_orbit("abc", 0) == "Tidak diketahui"
     assert np.isnan(orbit.periode_menit(pd.NA))
     assert orbit.periode_menit("2") == 720.0
+
+
+def test_parse_tle_duplikat_norad_ambil_epoch_terbaru():
+    baris = TLE_CONTOH.splitlines()
+    l1_baru = _perbarui_checksum(baris[1].replace("26306.43427755", "26307.43427755", 1))
+    teks = TLE_CONTOH + "\n".join(["ISS BARU", l1_baru, baris[2]])
+    df = orbit.parse_tle(teks)
+    assert sorted(df["norad"]) == [25544, 41944]
+    iss = df[df["norad"] == 25544].iloc[0]
+    assert iss["nama"] == "ISS BARU"
+    assert iss["epoch"].day == 3

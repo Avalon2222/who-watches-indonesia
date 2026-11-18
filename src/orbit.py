@@ -32,7 +32,8 @@ def parse_tle(teks: str) -> pd.DataFrame:
     Ubah teks TLE tiga baris (nama, baris 1, baris 2) menjadi DataFrame.
 
     Kolom: norad, nama, line1, line2, epoch (UTC), inklinasi_deg, mean_motion (putaran/hari).
-    Baris yang rusak, atau pasangan baris 1-2 dengan nomor NORAD berbeda, dilewati. Duplikat nomor NORAD diambil yang pertama.
+    Baris yang rusak, atau pasangan baris 1-2 dengan nomor NORAD berbeda, dilewati. Bila satu nomor NORAD
+    muncul lebih dari sekali (file riwayat atau gabungan beberapa unduhan), yang dipakai epoch terbaru.
     """
     baris = [b.rstrip() for b in teks.splitlines() if b.strip()]
     rekaman = []
@@ -63,7 +64,9 @@ def parse_tle(teks: str) -> pd.DataFrame:
         else:
             i += 1
     df = pd.DataFrame(rekaman, columns=["norad", "nama", "line1", "line2", "epoch", "inklinasi_deg", "mean_motion"])
-    return df.drop_duplicates("norad").reset_index(drop=True)
+    # Urutan asli dipertahankan; hanya elemen orbit lama dari satelit yang sama yang dibuang.
+    terbaru = df.sort_values("epoch", kind="stable").drop_duplicates("norad", keep="last").index
+    return df.loc[sorted(terbaru)].reset_index(drop=True)
 
 
 def _checksum_ok(baris: str) -> bool:
