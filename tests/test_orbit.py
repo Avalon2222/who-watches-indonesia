@@ -200,9 +200,14 @@ def test_periode_menit_iss_sekitar_93_menit():
     assert orbit.periode_menit(15.4915) == pytest.approx(92.95, abs=0.05)
 
 
+def _perbarui_checksum(baris: str) -> str:
+    total = sum(int(c) if c.isdigit() else 1 if c == "-" else 0 for c in baris[:68])
+    return baris[:68] + str(total % 10)
+
+
 def test_parse_tle_nomor_norad_alpha5():
-    l1 = TLE_CONTOH.splitlines()[1].replace("25544", "T0002", 1)
-    l2 = TLE_CONTOH.splitlines()[2].replace("25544", "T0002", 1)
+    l1 = _perbarui_checksum(TLE_CONTOH.splitlines()[1].replace("25544", "T0002", 1))
+    l2 = _perbarui_checksum(TLE_CONTOH.splitlines()[2].replace("25544", "T0002", 1))
     df = orbit.parse_tle("UJI ALPHA5\n" + l1 + "\n" + l2)
     assert len(df) == 1
     assert df.loc[0, "norad"] == 270002
@@ -234,3 +239,13 @@ def test_rentang_waktu_langkah_pecahan_dan_sangat_kecil():
     assert (orbit.rentang_waktu(mulai, 0.001, 0.005)[1] - mulai).total_seconds() == 1
     with pytest.raises(ValueError):
         orbit.rentang_waktu(mulai, 1, 0)
+
+
+def test_parse_tle_lewati_baris_dengan_checksum_salah():
+    baris = TLE_CONTOH.splitlines()
+    # Satu digit inklinasi tertukar (51.6332 -> 59.6332), checksum jadi tidak cocok.
+    rusak = baris[2].replace("51.6332", "59.6332", 1)
+    df = orbit.parse_tle("\n".join([baris[0], baris[1], rusak]))
+    assert df.empty
+    assert orbit._checksum_ok(baris[1]) and orbit._checksum_ok(baris[2])
+    assert orbit._checksum_ok(baris[1][:68])  # tanpa kolom checksum tetap diterima
