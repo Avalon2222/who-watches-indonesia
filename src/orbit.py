@@ -45,6 +45,9 @@ def parse_tle(teks: str) -> pd.DataFrame:
                 nama = nama[2:].strip()
             l1, l2 = baris[i], baris[i + 1]
             try:
+                if not (_checksum_ok(l1) and _checksum_ok(l2)):
+                    # Baris rusak saat diunduh (karakter tertukar/terpotong) akan menghasilkan orbit ngawur.
+                    raise ValueError("checksum TLE tidak cocok")
                 norad = _norad(l1[2:7])
                 if _norad(l2[2:7]) != norad:
                     # Baris 1 dan baris 2 milik satelit berbeda (file terpotong atau tercampur).
@@ -61,6 +64,17 @@ def parse_tle(teks: str) -> pd.DataFrame:
             i += 1
     df = pd.DataFrame(rekaman, columns=["norad", "nama", "line1", "line2", "epoch", "inklinasi_deg", "mean_motion"])
     return df.drop_duplicates("norad").reset_index(drop=True)
+
+
+def _checksum_ok(baris: str) -> bool:
+    """Kolom 69 TLE = jumlah semua digit di kolom 1-68 (tanda minus dihitung 1), modulo 10.
+
+    Baris yang lebih pendek dari 69 karakter (tanpa checksum) tetap diterima.
+    """
+    if len(baris) < 69 or not baris[68].isdigit():
+        return True
+    total = sum(int(c) if c.isdigit() else 1 if c == "-" else 0 for c in baris[:68])
+    return total % 10 == int(baris[68])
 
 
 def _norad(kolom: str) -> int:
