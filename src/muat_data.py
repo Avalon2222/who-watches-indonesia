@@ -80,7 +80,8 @@ def baca_tle_cadangan() -> str:
 def tanggal_dari_header(teks: str) -> datetime:
     """Tanggal snapshot ditulis di baris pertama: '# CelesTrak GROUP=active, diunduh 2026-11-02T17:14Z. ...'."""
     baris1 = teks.split("\n", 1)[0]
-    m = re.search(r"(\d{4}-\d{2}-\d{2})T?(\d{2}:\d{2})?", baris1)
+    # Pemisah tanggal dan jam bisa "T" (ISO) atau spasi.
+    m = re.search(r"(\d{4}-\d{2}-\d{2})(?:[T ](\d{2}:\d{2}))?", baris1)
     if not m:
         return datetime(2000, 1, 1, tzinfo=timezone.utc)
     jam = m.group(2) or "00:00"
