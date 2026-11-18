@@ -90,3 +90,9 @@ def test_tebak_dari_nama_kosong_dan_berspasi():
 def test_tentukan_kelompok_kode_negara_huruf_kecil():
     assert klasifikasi.tentukan_kelompok("id", "Militer", "Komunikasi") == "Indonesia"
     assert klasifikasi.tentukan_kelompok(" ID ", "Komersial", "Pencitraan optik") == "Indonesia"
+
+
+def test_tanggal_dari_header_dengan_spasi_atau_tanpa_jam():
+    t = muat_data.tanggal_dari_header("# diunduh 2026-11-02 17:14 UTC")
+    assert (t.hour, t.minute) == (17, 14)
+    assert muat_data.tanggal_dari_header("# Dibangun 2026-11-02").hour == 0
