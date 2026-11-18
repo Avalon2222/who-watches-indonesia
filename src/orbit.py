@@ -298,6 +298,11 @@ def rentang_waktu(mulai: datetime, jam: float, langkah_menit: float) -> pd.Datet
     `mulai` tanpa zona waktu dianggap UTC, sama seperti `ke_jd`. Sebelumnya `astimezone`
     menganggapnya waktu lokal mesin, jadi di laptop WIB jadwal lintasan bergeser 7 jam.
     """
+    if not langkah_menit or langkah_menit <= 0:
+        raise ValueError("langkah_menit harus lebih dari 0")
     if mulai.tzinfo is not None:
         mulai = mulai.astimezone(timezone.utc).replace(tzinfo=None)
-    return pd.date_range(mulai, mulai + timedelta(hours=jam), freq=f"{int(langkah_menit * 60)}s", inclusive="left")
+    # Dibulatkan ke detik terdekat (minimal 1 detik). int() memotong 0,333 menit jadi 19 detik
+    # dan langkah di bawah 1 detik jadi freq "0s" yang membuat date_range error.
+    detik = max(1, round(langkah_menit * 60))
+    return pd.date_range(mulai, mulai + timedelta(hours=jam), freq=f"{detik}s", inclusive="left")

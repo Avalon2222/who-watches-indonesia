@@ -223,3 +223,14 @@ def test_parse_tle_lewati_pasangan_norad_tidak_cocok():
     teks = "\n".join(["CAMPUR", b[1], b[5], b[3], b[4], b[5]])
     df = orbit.parse_tle(teks)
     assert list(df["norad"]) == [41944]
+
+
+def test_rentang_waktu_langkah_pecahan_dan_sangat_kecil():
+    mulai = datetime(2026, 1, 1)
+    # 1/3 menit = 20 detik, bukan 19 karena terpotong int().
+    w = orbit.rentang_waktu(mulai, 0.1, 1 / 3)
+    assert (w[1] - w[0]).total_seconds() == 20
+    # Langkah di bawah 1 detik dibulatkan jadi 1 detik, tidak error.
+    assert (orbit.rentang_waktu(mulai, 0.001, 0.005)[1] - mulai).total_seconds() == 1
+    with pytest.raises(ValueError):
+        orbit.rentang_waktu(mulai, 1, 0)
