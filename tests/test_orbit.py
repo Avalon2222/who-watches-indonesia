@@ -268,3 +268,16 @@ def test_parse_tle_duplikat_norad_ambil_epoch_terbaru():
     iss = df[df["norad"] == 25544].iloc[0]
     assert iss["nama"] == "ISS BARU"
     assert iss["epoch"].day == 3
+
+
+@pytest.mark.parametrize("z", [7000.0, -7000.0])
+def test_ketinggian_tepat_di_atas_kutub(z):
+    # Jari-jari kutub WGS84 = 6356,752 km, jadi ketinggian = |z| - 6356,752.
+    lat, _lon, alt = orbit.teme_ke_geodetik(np.array([[0.0, 0.0, z]]), np.array([2460000.5]))
+    assert abs(lat[0]) == pytest.approx(90.0)
+    assert alt[0] == pytest.approx(7000.0 - 6356.752, abs=0.01)
+
+
+def test_ketinggian_di_ekuator_tidak_berubah():
+    _lat, _lon, alt = orbit.teme_ke_geodetik(np.array([[7000.0, 0.0, 0.0]]), np.array([2460000.5]))
+    assert alt[0] == pytest.approx(7000.0 - 6378.137, abs=1e-6)

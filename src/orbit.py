@@ -188,12 +188,17 @@ def teme_ke_geodetik(r_teme: np.ndarray, jd: np.ndarray) -> tuple[np.ndarray, np
     lon = np.degrees(np.arctan2(y_e, x_e))
     p = np.hypot(x_e, y_e)
     lat = np.arctan2(z_e, p * (1 - E2))
+    def _ketinggian(lat):
+        # Bentuk p*cos + z*sin tetap stabil di atas kutub. Rumus lama p / cos(lat) menjadi 0/0
+        # saat p = 0, sehingga satelit tepat di atas kutub mendapat lintang dan ketinggian NaN.
+        sin_lat = np.sin(lat)
+        n = R_BUMI_KM / np.sqrt(1 - E2 * sin_lat**2)
+        return n, p * np.cos(lat) + z_e * sin_lat - n * (1 - E2 * sin_lat**2)
+
     for _ in range(4):  # iterasi Bowring sederhana, konvergen dalam 2-3 langkah
-        n = R_BUMI_KM / np.sqrt(1 - E2 * np.sin(lat) ** 2)
-        alt = p / np.cos(lat) - n
+        n, alt = _ketinggian(lat)
         lat = np.arctan2(z_e, p * (1 - E2 * n / (n + alt)))
-    n = R_BUMI_KM / np.sqrt(1 - E2 * np.sin(lat) ** 2)
-    alt = p / np.cos(lat) - n
+    _n, alt = _ketinggian(lat)
     return np.degrees(lat), lon, alt
 
 
