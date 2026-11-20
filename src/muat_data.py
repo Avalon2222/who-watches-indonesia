@@ -135,6 +135,8 @@ def gabungkan(df_tle: pd.DataFrame, katalog: pd.DataFrame, negara: pd.DataFrame)
     negara_kode, negara, bendera, pemilik, kelas, kategori_gcat, program, tanggal_luncur, terkatalog,
     operator, misi, pengintai, kelompok.
     """
+    # Katalog dengan nomor NORAD ganda akan menggandakan satelit saat merge; pakai baris terakhir.
+    katalog = katalog.drop_duplicates("norad", keep="last")
     df = df_tle.merge(katalog, on="norad", how="left")
     df["terkatalog"] = df["negara_kode"].notna()
     df["sumber_klasifikasi"] = df["terkatalog"].map({True: "GCAT", False: "-"})
