@@ -85,7 +85,14 @@ def tanggal_dari_header(teks: str) -> datetime:
     if not m:
         return datetime(2000, 1, 1, tzinfo=timezone.utc)
     jam = m.group(2) or "00:00"
-    return datetime.strptime(f"{m.group(1)} {jam}", "%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+    # Header yang rusak (bulan 13, jam 25) jangan sampai membuat aplikasi gagal dimuat:
+    # coba tanggal + jam, lalu tanggal saja, lalu tanggal cadangan.
+    for teks, pola in ((f"{m.group(1)} {jam}", "%Y-%m-%d %H:%M"), (m.group(1), "%Y-%m-%d")):
+        try:
+            return datetime.strptime(teks, pola).replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return datetime(2000, 1, 1, tzinfo=timezone.utc)
 
 
 def _baris_pertama(path: Path) -> str:

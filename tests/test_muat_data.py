@@ -126,3 +126,8 @@ def test_muat_semua_pakai_tle_yang_diberikan():
     assert kembali is tle
     assert len(df) > 1000
     assert {"norad", "line1", "line2"} <= set(df.columns)
+
+
+def test_tanggal_dari_header_rusak_tidak_crash():
+    assert muat_data.tanggal_dari_header("# diunduh 2026-11-02T25:99Z") == datetime(2026, 11, 2, tzinfo=timezone.utc)
+    assert muat_data.tanggal_dari_header("# diunduh 2026-13-45") == datetime(2000, 1, 1, tzinfo=timezone.utc)
