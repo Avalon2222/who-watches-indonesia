@@ -7,6 +7,7 @@ bisa mensimulasikan CelesTrak mati / snapshot GitHub mati.
 
 from datetime import datetime, timedelta, timezone
 
+import pandas as pd
 import pytest
 import requests
 
@@ -131,3 +132,17 @@ def test_muat_semua_pakai_tle_yang_diberikan():
 def test_tanggal_dari_header_rusak_tidak_crash():
     assert muat_data.tanggal_dari_header("# diunduh 2026-11-02T25:99Z") == datetime(2026, 11, 2, tzinfo=timezone.utc)
     assert muat_data.tanggal_dari_header("# diunduh 2026-13-45") == datetime(2000, 1, 1, tzinfo=timezone.utc)
+
+
+def test_gabungkan_katalog_norad_ganda_tidak_menggandakan_satelit():
+    tle = pd.DataFrame({
+        "norad": [25544], "nama": ["ISS (ZARYA)"], "line1": ["1"], "line2": ["2"],
+        "epoch": [datetime(2026, 11, 1, tzinfo=timezone.utc)], "inklinasi_deg": [51.6], "mean_motion": [15.5],
+    })
+    baris = {"nama_gcat": "ISS", "pemilik": "NASA", "kelas": "C", "kategori_gcat": "SS",
+             "program": "ISS", "orbit_gcat": "LEO", "tanggal_luncur": "1998"}
+    katalog = pd.DataFrame([{"norad": 25544, "negara_kode": "RU", **baris}, {"norad": 25544, "negara_kode": "US", **baris}])
+    negara = pd.DataFrame({"kode_gcat": ["US"], "negara": ["Amerika Serikat"], "bendera": ["🇺🇸"]})
+    hasil = muat_data.gabungkan(tle, katalog, negara)
+    assert len(hasil) == 1
+    assert hasil.iloc[0]["negara"] == "Amerika Serikat"
