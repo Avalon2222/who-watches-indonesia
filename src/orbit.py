@@ -290,6 +290,10 @@ def hitung_lintasan(mask: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: fl
     if mask.ndim != 2:
         raise ValueError("mask harus berbentuk (n_satelit, n_waktu)")
     n, m = mask.shape
+    # Panjang waktu yang tidak cocok dulu baru ketahuan sebagai IndexError di tengah perhitungan
+    # (atau, bila waktu lebih panjang, diam-diam memakai jam yang salah).
+    if len(waktu) != m:
+        raise ValueError(f"panjang waktu ({len(waktu)}) harus sama dengan kolom mask ({m})")
     if m == 0:
         return pd.DataFrame({"jumlah_lintasan": np.zeros(n, int), "menit_di_atas": np.zeros(n), "lintasan_pertama": pd.NaT, "lintasan_terakhir": pd.NaT})
     # tepi naik: False -> True. Kolom pertama dianggap didahului False.
@@ -312,6 +316,8 @@ def hitung_lintasan(mask: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: fl
 def daftar_lintasan(mask_1d: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: float) -> pd.DataFrame:
     """Rincian setiap lintasan satu satelit: mulai, selesai, durasi_menit. Untuk tabel 'jadwal lintasan'."""
     mask_1d = np.asarray(mask_1d, dtype=bool)
+    if len(waktu) != len(mask_1d):
+        raise ValueError(f"panjang waktu ({len(waktu)}) harus sama dengan mask ({len(mask_1d)})")
     baris = []
     sedang = False
     for i, aktif in enumerate(mask_1d):
