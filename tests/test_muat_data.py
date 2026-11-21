@@ -146,3 +146,18 @@ def test_gabungkan_katalog_norad_ganda_tidak_menggandakan_satelit():
     hasil = muat_data.gabungkan(tle, katalog, negara)
     assert len(hasil) == 1
     assert hasil.iloc[0]["negara"] == "Amerika Serikat"
+
+
+def test_gabungkan_kode_negara_huruf_kecil_tetap_dapat_nama():
+    tle = pd.DataFrame({
+        "norad": [1, 2], "nama": ["A", "B"], "line1": ["1", "1"], "line2": ["2", "2"],
+        "epoch": [datetime(2026, 11, 1, tzinfo=timezone.utc)] * 2, "inklinasi_deg": [51.6, 0.1], "mean_motion": [15.5, 1.0],
+    })
+    baris = {"nama_gcat": "X", "pemilik": "-", "kelas": "B", "kategori_gcat": "COM",
+             "program": "-", "orbit_gcat": "LEO", "tanggal_luncur": "2020"}
+    katalog = pd.DataFrame([{"norad": 1, "negara_kode": " us", **baris}, {"norad": 2, "negara_kode": "id ", **baris}])
+    negara = pd.DataFrame({"kode_gcat": ["US", "ID"], "negara": ["Amerika Serikat", "Indonesia"], "bendera": ["🇺🇸", "🇮🇩"]})
+    hasil = muat_data.gabungkan(tle, katalog, negara)
+    assert list(hasil["negara"]) == ["Amerika Serikat", "Indonesia"]
+    assert list(hasil["bendera"]) == ["🇺🇸", "🇮🇩"]
+    assert hasil.iloc[1]["kelompok"] == "Indonesia"
