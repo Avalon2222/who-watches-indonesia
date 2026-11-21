@@ -281,3 +281,11 @@ def test_ketinggian_tepat_di_atas_kutub(z):
 def test_ketinggian_di_ekuator_tidak_berubah():
     _lat, _lon, alt = orbit.teme_ke_geodetik(np.array([[7000.0, 0.0, 0.0]]), np.array([2460000.5]))
     assert alt[0] == pytest.approx(7000.0 - 6378.137, abs=1e-6)
+
+
+def test_lintasan_panjang_waktu_tidak_cocok_ditolak():
+    waktu = pd.date_range("2026-01-01", periods=2, freq="min")
+    with pytest.raises(ValueError, match="panjang waktu"):
+        orbit.hitung_lintasan(np.array([[True, True, False]]), waktu, 1)
+    with pytest.raises(ValueError, match="panjang waktu"):
+        orbit.daftar_lintasan(np.array([False, True, True]), waktu, 1)
