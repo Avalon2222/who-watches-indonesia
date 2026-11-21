@@ -142,6 +142,9 @@ def gabungkan(df_tle: pd.DataFrame, katalog: pd.DataFrame, negara: pd.DataFrame)
     df["sumber_klasifikasi"] = df["terkatalog"].map({True: "GCAT", False: "-"})
     for kolom in ["nama_gcat", "negara_kode", "pemilik", "kelas", "kategori_gcat", "program", "orbit_gcat", "tanggal_luncur"]:
         df[kolom] = df[kolom].fillna("-").astype(str)
+    # Kode negara " id" atau "us" dari input manual tetap dicocokkan ke tabel negara (yang huruf besar),
+    # sama seperti tentukan_kelompok yang sudah toleran terhadap huruf dan spasi.
+    df["negara_kode"] = df["negara_kode"].str.strip().str.upper().replace("", "-")
     df = klasifikasi.klasifikasikan(df)
 
     peta_nama = dict(zip(negara["kode_gcat"], negara["negara"]))
