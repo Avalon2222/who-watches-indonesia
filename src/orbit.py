@@ -332,7 +332,8 @@ def rentang_waktu(mulai: datetime, jam: float, langkah_menit: float) -> pd.Datet
     `mulai` tanpa zona waktu dianggap UTC, sama seperti `ke_jd`. Sebelumnya `astimezone`
     menganggapnya waktu lokal mesin, jadi di laptop WIB jadwal lintasan bergeser 7 jam.
     """
-    if not langkah_menit or langkah_menit <= 0:
+    # NaN lolos dari `<= 0` lalu gagal di round() dengan pesan yang membingungkan; tolak di sini.
+    if not langkah_menit or not np.isfinite(langkah_menit) or langkah_menit <= 0:
         raise ValueError("langkah_menit harus lebih dari 0")
     if mulai.tzinfo is not None:
         mulai = mulai.astimezone(timezone.utc).replace(tzinfo=None)

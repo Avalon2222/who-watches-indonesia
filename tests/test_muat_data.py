@@ -161,3 +161,9 @@ def test_gabungkan_kode_negara_huruf_kecil_tetap_dapat_nama():
     assert list(hasil["negara"]) == ["Amerika Serikat", "Indonesia"]
     assert list(hasil["bendera"]) == ["🇺🇸", "🇮🇩"]
     assert hasil.iloc[1]["kelompok"] == "Indonesia"
+
+
+@pytest.mark.parametrize("langkah", [float("nan"), float("inf")])
+def test_rentang_waktu_langkah_nan_atau_tak_hingga_ditolak(langkah):
+    with pytest.raises(ValueError, match="langkah_menit"):
+        orbit.rentang_waktu(datetime(2026, 1, 1), 1, langkah)
