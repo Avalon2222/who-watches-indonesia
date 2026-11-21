@@ -289,3 +289,10 @@ def test_lintasan_panjang_waktu_tidak_cocok_ditolak():
         orbit.hitung_lintasan(np.array([[True, True, False]]), waktu, 1)
     with pytest.raises(ValueError, match="panjang waktu"):
         orbit.daftar_lintasan(np.array([False, True, True]), waktu, 1)
+
+
+def test_parse_tle_baris_komentar_bukan_nama():
+    baris = [b for b in TLE_CONTOH.splitlines() if b.startswith(("1 ", "2 "))][:2]
+    df = orbit.parse_tle("# diunduh 2026-11-20T03:30Z\n" + "\n".join(baris))
+    assert len(df) == 1
+    assert df.loc[0, "nama"] == ""
