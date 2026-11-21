@@ -41,6 +41,9 @@ def parse_tle(teks: str) -> pd.DataFrame:
     while i < len(baris) - 1:
         if baris[i].startswith("1 ") and baris[i + 1].startswith("2 "):
             nama = baris[i - 1].strip() if i > 0 and not baris[i - 1][:2] in ("1 ", "2 ") else ""
+            if nama.startswith("#"):
+                # Baris komentar (mis. header tanggal snapshot) bukan nama satelit.
+                nama = ""
             if nama.startswith("0 "):
                 # Format 3LE (Space-Track) menulis baris nama dengan awalan "0 ".
                 nama = nama[2:].strip()
