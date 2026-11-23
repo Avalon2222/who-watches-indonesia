@@ -296,3 +296,10 @@ def test_parse_tle_baris_komentar_bukan_nama():
     df = orbit.parse_tle("# diunduh 2026-11-20T03:30Z\n" + "\n".join(baris))
     assert len(df) == 1
     assert df.loc[0, "nama"] == ""
+
+
+@pytest.mark.parametrize("langkah", [0, -1, float("nan"), float("inf")])
+def test_hitung_lintasan_tolak_langkah_tidak_sah(langkah):
+    waktu = pd.date_range("2025-01-01", periods=3, freq="min")
+    with pytest.raises(ValueError):
+        orbit.hitung_lintasan(np.ones((1, 3), dtype=bool), waktu, langkah)

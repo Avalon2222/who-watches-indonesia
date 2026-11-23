@@ -279,6 +279,12 @@ def potong_di_garis_tanggal(df_jejak: pd.DataFrame) -> pd.DataFrame:
 # ----------------------------------------------------------------------------
 # 5. Menghitung lintasan di atas suatu wilayah
 # ----------------------------------------------------------------------------
+def _cek_langkah(langkah_menit: float) -> None:
+    """Langkah 0, negatif, NaN, atau inf membuat menit_di_atas/durasi bernilai negatif atau NaN."""
+    if not np.isfinite(langkah_menit) or langkah_menit <= 0:
+        raise ValueError("langkah_menit harus lebih dari 0")
+
+
 def hitung_lintasan(mask: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: float) -> pd.DataFrame:
     """
     Dari matriks boolean (n_satelit, n_waktu) "sedang di atas wilayah", hitung per satelit:
@@ -289,6 +295,7 @@ def hitung_lintasan(mask: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: fl
 
     Deret True yang sudah menyala di waktu ke-0 tetap dihitung satu lintasan.
     """
+    _cek_langkah(langkah_menit)
     mask = np.asarray(mask, dtype=bool)
     if mask.ndim != 2:
         raise ValueError("mask harus berbentuk (n_satelit, n_waktu)")
