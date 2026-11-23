@@ -303,3 +303,10 @@ def test_hitung_lintasan_tolak_langkah_tidak_sah(langkah):
     waktu = pd.date_range("2025-01-01", periods=3, freq="min")
     with pytest.raises(ValueError):
         orbit.hitung_lintasan(np.ones((1, 3), dtype=bool), waktu, langkah)
+
+
+@pytest.mark.parametrize("langkah", [0, -2, float("nan")])
+def test_daftar_lintasan_tolak_langkah_tidak_sah(langkah):
+    waktu = pd.date_range("2025-01-01", periods=3, freq="min")
+    with pytest.raises(ValueError):
+        orbit.daftar_lintasan(np.array([True, True, False]), waktu, langkah)

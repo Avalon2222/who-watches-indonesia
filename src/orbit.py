@@ -325,6 +325,7 @@ def hitung_lintasan(mask: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: fl
 
 def daftar_lintasan(mask_1d: np.ndarray, waktu: pd.DatetimeIndex, langkah_menit: float) -> pd.DataFrame:
     """Rincian setiap lintasan satu satelit: mulai, selesai, durasi_menit. Untuk tabel 'jadwal lintasan'."""
+    _cek_langkah(langkah_menit)
     mask_1d = np.asarray(mask_1d, dtype=bool)
     if len(waktu) != len(mask_1d):
         raise ValueError(f"panjang waktu ({len(waktu)}) harus sama dengan mask ({len(mask_1d)})")
