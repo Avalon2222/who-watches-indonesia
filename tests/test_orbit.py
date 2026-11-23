@@ -310,3 +310,9 @@ def test_daftar_lintasan_tolak_langkah_tidak_sah(langkah):
     waktu = pd.date_range("2025-01-01", periods=3, freq="min")
     with pytest.raises(ValueError):
         orbit.daftar_lintasan(np.array([True, True, False]), waktu, langkah)
+
+
+@pytest.mark.parametrize("menit, langkah", [(10, -30), (10, 0), (-5, 30)])
+def test_jejak_tolak_langkah_atau_durasi_tidak_sah(menit, langkah):
+    with pytest.raises(ValueError, match="langkah_detik|menit"):
+        orbit.jejak("1 x", "2 x", datetime(2025, 1, 1), menit, langkah)
