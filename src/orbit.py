@@ -253,6 +253,11 @@ def posisi_saat(df: pd.DataFrame, waktu: datetime) -> pd.DataFrame:
 
 def jejak(line1: str, line2: str, mulai: datetime, menit: int = 100, langkah_detik: int = 30) -> pd.DataFrame:
     """Jejak darat (ground track) satu satelit: DataFrame waktu, lat, lon, alt_km dari `mulai` selama `menit`."""
+    # Langkah negatif atau durasi negatif dulu diam-diam menghasilkan jejak kosong.
+    if langkah_detik <= 0:
+        raise ValueError("langkah_detik harus lebih dari 0")
+    if menit < 0:
+        raise ValueError("menit tidak boleh negatif")
     waktu = [mulai + timedelta(seconds=s) for s in range(0, menit * 60 + 1, langkah_detik)]
     df = pd.DataFrame({"line1": [line1], "line2": [line2]})
     h = propagasi(df, waktu)
