@@ -167,3 +167,16 @@ def test_gabungkan_kode_negara_huruf_kecil_tetap_dapat_nama():
 def test_rentang_waktu_langkah_nan_atau_tak_hingga_ditolak(langkah):
     with pytest.raises(ValueError, match="langkah_menit"):
         orbit.rentang_waktu(datetime(2026, 1, 1), 1, langkah)
+
+
+def test_gabungkan_kode_di_tabel_negara_huruf_kecil():
+    tle = pd.DataFrame({
+        "norad": [1], "nama": ["A"], "line1": ["1"], "line2": ["2"],
+        "epoch": [datetime(2026, 11, 1, tzinfo=timezone.utc)], "inklinasi_deg": [0.1], "mean_motion": [1.0],
+    })
+    katalog = pd.DataFrame([{"norad": 1, "negara_kode": "ID", "nama_gcat": "X", "pemilik": "-", "kelas": "B",
+                             "kategori_gcat": "COM", "program": "-", "orbit_gcat": "GEO", "tanggal_luncur": "2020"}])
+    negara = pd.DataFrame({"kode_gcat": [" id"], "negara": ["Indonesia"], "bendera": ["🇮🇩"]})
+    hasil = muat_data.gabungkan(tle, katalog, negara)
+    assert hasil.iloc[0]["negara"] == "Indonesia"
+    assert hasil.iloc[0]["bendera"] == "🇮🇩"
