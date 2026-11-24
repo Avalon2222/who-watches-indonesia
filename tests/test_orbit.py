@@ -322,3 +322,12 @@ def test_jejak_tolak_langkah_atau_durasi_tidak_sah(menit, langkah):
 def test_rentang_waktu_tolak_durasi_tidak_sah(jam):
     with pytest.raises(ValueError, match="jam"):
         orbit.rentang_waktu(datetime(2026, 1, 1), jam, 5)
+
+
+def test_jejak_menit_pecahan_dan_langkah_nan():
+    iss = orbit.parse_tle(TLE_CONTOH).query("norad == 25544").iloc[0]
+    t0 = datetime(2026, 11, 2, 12, 0, tzinfo=timezone.utc)
+    j = orbit.jejak(iss["line1"], iss["line2"], t0, menit=1.5, langkah_detik=30)
+    assert len(j) == 4 and j["waktu"].iloc[-1] == t0 + timedelta(seconds=90)
+    with pytest.raises(ValueError, match="langkah_detik"):
+        orbit.jejak(iss["line1"], iss["line2"], t0, menit=10, langkah_detik=float("nan"))
