@@ -251,7 +251,7 @@ def posisi_saat(df: pd.DataFrame, waktu: datetime) -> pd.DataFrame:
     return keluar.dropna(subset=["lat", "lon"]).reset_index(drop=True)
 
 
-def jejak(line1: str, line2: str, mulai: datetime, menit: int = 100, langkah_detik: int = 30) -> pd.DataFrame:
+def jejak(line1: str, line2: str, mulai: datetime, menit: float = 100, langkah_detik: float = 30) -> pd.DataFrame:
     """Jejak darat (ground track) satu satelit: DataFrame waktu, lat, lon, alt_km dari `mulai` selama `menit`."""
     # Langkah negatif atau durasi negatif dulu diam-diam menghasilkan jejak kosong.
     # NaN lolos dari perbandingan biasa; tolak juga, jangan sampai range() gagal dengan TypeError.
