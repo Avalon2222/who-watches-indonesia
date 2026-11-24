@@ -357,6 +357,9 @@ def rentang_waktu(mulai: datetime, jam: float, langkah_menit: float) -> pd.Datet
     # NaN lolos dari `<= 0` lalu gagal di round() dengan pesan yang membingungkan; tolak di sini.
     if not langkah_menit or not np.isfinite(langkah_menit) or langkah_menit <= 0:
         raise ValueError("langkah_menit harus lebih dari 0")
+    # Durasi negatif dulu diam-diam menghasilkan deret kosong, dan NaN gagal di timedelta.
+    if not np.isfinite(jam) or jam < 0:
+        raise ValueError("jam harus angka 0 atau lebih")
     if mulai.tzinfo is not None:
         mulai = mulai.astimezone(timezone.utc).replace(tzinfo=None)
     # Dibulatkan ke detik terdekat (minimal 1 detik). int() memotong 0,333 menit jadi 19 detik
