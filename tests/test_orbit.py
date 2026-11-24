@@ -321,7 +321,7 @@ def test_jejak_tolak_langkah_atau_durasi_tidak_sah(menit, langkah):
 @pytest.mark.parametrize("jam", [-1, float("nan"), float("inf")])
 def test_rentang_waktu_tolak_durasi_tidak_sah(jam):
     with pytest.raises(ValueError, match="jam"):
-        orbit.rentang_waktu(datetime(2026, 1, 1), jam, 5)
+        orbit.rentang_waktu(datetime(2026, 1, 1, tzinfo=timezone.utc), jam, 5)
 
 
 def test_jejak_menit_pecahan_dan_langkah_nan():
