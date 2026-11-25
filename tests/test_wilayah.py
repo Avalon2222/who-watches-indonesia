@@ -64,3 +64,9 @@ def test_di_kawasan_terima_skalar_dan_array():
     assert bool(w.di_kawasan(-6.2, 106.8))                   # Jakarta
     hasil = w.di_kawasan([-6.2, 51.5], [106.8, -0.1])        # Jakarta, London
     assert hasil.tolist() == [True, False]
+
+
+def test_lintang_skalar_dengan_banyak_bujur():
+    hasil = wilayah.di_atas_indonesia(-6.2, np.array([106.8, 90.0, 150.0]))
+    assert hasil.tolist() == [True, False, False]
+    assert wilayah.di_dalam_poligon(np.array([-6.2, 1.35]), 103.8).tolist() == [True, False]
