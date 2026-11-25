@@ -47,8 +47,8 @@ def di_dalam_poligon(lat, lon, poligon: list[tuple[float, float]] = POLIGON_INDO
     >>> bool(di_dalam_poligon(np.array([1.35]), np.array([103.8]))[0])   # Singapura
     False
     """
-    lat = np.asarray(lat, dtype=float)
-    lon = np.asarray(lon, dtype=float)
+    # Satu lintang dengan banyak bujur (atau sebaliknya) disamakan bentuknya dulu.
+    lat, lon = np.broadcast_arrays(np.asarray(lat, dtype=float), np.asarray(lon, dtype=float))
     di_dalam = np.zeros(lat.shape, dtype=bool)
     n = len(poligon)
     for i in range(n):
@@ -65,8 +65,8 @@ def di_dalam_poligon(lat, lon, poligon: list[tuple[float, float]] = POLIGON_INDO
 
 def di_atas_indonesia(lat, lon) -> np.ndarray:
     """True bila titik (lat, lon) berada di dalam poligon Indonesia. Kotak pembatas dipakai sebagai saringan awal."""
-    lat = np.asarray(lat, dtype=float)
-    lon = np.asarray(lon, dtype=float)
+    # Lintang skalar dengan bujur berupa array dulu berakhir IndexError saat menyaring kotak.
+    lat, lon = np.broadcast_arrays(np.asarray(lat, dtype=float), np.asarray(lon, dtype=float))
     kotak = (lat >= LAT_MIN) & (lat <= LAT_MAX) & (lon >= LON_MIN) & (lon <= LON_MAX)
     hasil = np.zeros(lat.shape, dtype=bool)
     if kotak.any():
