@@ -331,3 +331,11 @@ def test_jejak_menit_pecahan_dan_langkah_nan():
     assert len(j) == 4 and j["waktu"].iloc[-1] == t0 + timedelta(seconds=90)
     with pytest.raises(ValueError, match="langkah_detik"):
         orbit.jejak(iss["line1"], iss["line2"], t0, menit=10, langkah_detik=float("nan"))
+
+
+def test_parse_tle_hari_epoch_di_luar_rentang_dilewati():
+    baris = TLE_CONTOH.splitlines()
+    for hari in ("000.50000000", "400.00000000"):
+        l1 = _perbarui_checksum(baris[1][:20] + hari + baris[1][32:])
+        df = orbit.parse_tle("\n".join([baris[0], l1, baris[2], *baris[3:]]))
+        assert df["norad"].tolist() == [41944]

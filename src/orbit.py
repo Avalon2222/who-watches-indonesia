@@ -102,6 +102,9 @@ def _epoch_tle(line1: str) -> datetime:
     """Epoch TLE ditulis sebagai YYDDD.FFFFFFFF (tahun 2 digit + hari dalam tahun + pecahan hari)."""
     tahun2 = int(line1[18:20])
     hari = float(line1[20:32])
+    # Hari ke-0 atau di atas 366 bukan epoch yang sah (baris rusak); dulu diam-diam jatuh di tahun lain.
+    if not 1 <= hari < 367:
+        raise ValueError(f"hari epoch TLE di luar rentang: {hari}")
     tahun = 2000 + tahun2 if tahun2 < 57 else 1900 + tahun2
     return datetime(tahun, 1, 1, tzinfo=timezone.utc) + timedelta(days=hari - 1)
 
