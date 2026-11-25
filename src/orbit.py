@@ -133,6 +133,9 @@ def jenis_orbit(mean_motion: float, inklinasi_deg: float) -> str:
     if not np.isfinite(mean_motion) or mean_motion <= 0:
         return "Tidak diketahui"
     if 0.9 <= mean_motion <= 1.1:
+        # Inklinasi kosong tidak berarti "miring" (NaN < 10 bernilai False); cukup sebut geosinkron.
+        if not np.isfinite(inklinasi_deg):
+            return "GSO"
         return "GEO" if inklinasi_deg < 10 else "GSO miring"
     if mean_motion < 1.5:
         return "HEO/MEO tinggi"
