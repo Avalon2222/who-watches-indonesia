@@ -339,3 +339,10 @@ def test_parse_tle_hari_epoch_di_luar_rentang_dilewati():
         l1 = _perbarui_checksum(baris[1][:20] + hari + baris[1][32:])
         df = orbit.parse_tle("\n".join([baris[0], l1, baris[2], *baris[3:]]))
         assert df["norad"].tolist() == [41944]
+
+
+def test_jenis_orbit_geosinkron_tanpa_inklinasi():
+    assert orbit.jenis_orbit(1.0027, float("nan")) == "GSO"
+    assert orbit.jenis_orbit(1.0027, None) == "GSO"
+    assert orbit.jenis_orbit(1.0027, 0.05) == "GEO"
+    assert orbit.jenis_orbit(1.0027, 30.0) == "GSO miring"
