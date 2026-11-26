@@ -180,3 +180,10 @@ def test_gabungkan_kode_di_tabel_negara_huruf_kecil():
     hasil = muat_data.gabungkan(tle, katalog, negara)
     assert hasil.iloc[0]["negara"] == "Indonesia"
     assert hasil.iloc[0]["bendera"] == "🇮🇩"
+
+
+def test_epoch_tle_hari_366_hanya_di_tahun_kabisat():
+    baris1 = "1 25544U 98067A   24366.50000000  .00000000  00000-0  00000-0 0  9990"
+    assert orbit._epoch_tle(baris1) == datetime(2024, 12, 31, 12, tzinfo=timezone.utc)
+    with pytest.raises(ValueError):
+        orbit._epoch_tle(baris1.replace("24366", "26366"))
