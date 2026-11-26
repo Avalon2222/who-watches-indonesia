@@ -60,6 +60,10 @@ def parse_tle(teks: str) -> pd.DataFrame:
                 epoch = _epoch_tle(l1)
                 inklinasi = float(l2[8:16])
                 mean_motion = float(l2[52:63])
+                # Inklinasi di luar 0-180 derajat berarti kolomnya bergeser (baris tanpa checksum);
+                # tanpa ini inklinasi -5 diam-diam terbaca sebagai orbit GEO.
+                if not 0 <= inklinasi <= 180:
+                    raise ValueError(f"inklinasi di luar rentang: {inklinasi}")
             except ValueError:
                 i += 2
                 continue

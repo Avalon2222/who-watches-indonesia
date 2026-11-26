@@ -346,3 +346,11 @@ def test_jenis_orbit_geosinkron_tanpa_inklinasi():
     assert orbit.jenis_orbit(1.0027, None) == "GSO"
     assert orbit.jenis_orbit(1.0027, 0.05) == "GEO"
     assert orbit.jenis_orbit(1.0027, 30.0) == "GSO miring"
+
+
+def test_parse_tle_inklinasi_di_luar_rentang_dilewati():
+    baris = TLE_CONTOH.splitlines()
+    for inklinasi in (" -5.0000", "190.0000"):
+        l2 = _perbarui_checksum(baris[5][:8] + inklinasi + baris[5][16:])
+        df = orbit.parse_tle("\n".join([*baris[:5], l2]))
+        assert df["norad"].tolist() == [25544]
