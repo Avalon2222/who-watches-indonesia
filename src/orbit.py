@@ -12,6 +12,7 @@ Semua fungsi menerima array numpy supaya ribuan satelit dan ribuan waktu bisa di
 
 from __future__ import annotations
 
+import calendar
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
@@ -103,9 +104,11 @@ def _epoch_tle(line1: str) -> datetime:
     tahun2 = int(line1[18:20])
     hari = float(line1[20:32])
     # Hari ke-0 atau di atas 366 bukan epoch yang sah (baris rusak); dulu diam-diam jatuh di tahun lain.
-    if not 1 <= hari < 367:
-        raise ValueError(f"hari epoch TLE di luar rentang: {hari}")
     tahun = 2000 + tahun2 if tahun2 < 57 else 1900 + tahun2
+    # Hari ke-366 hanya ada di tahun kabisat; di tahun biasa epoch itu diam-diam jatuh ke 1 Januari tahun depan.
+    batas = 367 if calendar.isleap(tahun) else 366
+    if not 1 <= hari < batas:
+        raise ValueError(f"hari epoch TLE di luar rentang: {hari}")
     return datetime(tahun, 1, 1, tzinfo=timezone.utc) + timedelta(days=hari - 1)
 
 
