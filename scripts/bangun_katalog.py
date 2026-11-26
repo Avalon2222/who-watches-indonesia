@@ -54,6 +54,19 @@ def _unduh(url: str) -> bytes:
     return r.content
 
 
+def _tanggal_luncur(ldate: pd.Series) -> pd.Series:
+    """LDate GCAT ("1957 Oct  4 1928:34") jadi "1957-10-04".
+
+    Peluncuran lama yang presisinya hanya bulan ("1962 Mar") atau tahun ("1962") dulu hilang jadi kosong;
+    sekarang disimpan sebagai "1962-03" atau "1962".
+    """
+    teks = ldate.fillna("").astype(str).str.replace("?", "", regex=False).str.strip()
+    hari = pd.to_datetime(teks.str.slice(0, 11), format="%Y %b %d", errors="coerce").dt.strftime("%Y-%m-%d")
+    bulan = pd.to_datetime(teks.where(teks.str.fullmatch(r"\d{4} [A-Za-z]{3}")), format="%Y %b", errors="coerce").dt.strftime("%Y-%m")
+    tahun = teks.where(teks.str.fullmatch(r"\d{4}"))
+    return hari.fillna(bulan).fillna(tahun)
+
+
 def gabungkan(satcat: pd.DataFrame, psatcat: pd.DataFrame) -> pd.DataFrame:
     """Gabungkan satcat (objek fisik) dan psatcat (payload) menjadi satu tabel ringkas."""
     payload = satcat[
@@ -74,7 +87,7 @@ def gabungkan(satcat: pd.DataFrame, psatcat: pd.DataFrame) -> pd.DataFrame:
         "kategori_gcat": df["Category"].fillna("-").replace("", "-"),
         "program": df["Program"].fillna("-").replace("", "-"),
         "orbit_gcat": df["OpOrbit"],
-        "tanggal_luncur": pd.to_datetime(df["LDate"].str.slice(0, 11), format="%Y %b %d", errors="coerce").dt.strftime("%Y-%m-%d"),
+        "tanggal_luncur": _tanggal_luncur(df["LDate"]),
         "massa_kg": pd.to_numeric(df["Mass"], errors="coerce"),
     })
     keluar = keluar.sort_values("norad").drop_duplicates("norad")

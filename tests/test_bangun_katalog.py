@@ -53,3 +53,10 @@ def test_main_dari_folder_lokal(tmp_path):
     assert baris_pertama.startswith("# Sumber: GCAT") and "Dibangun 20" in baris_pertama
     df = pd.read_csv(keluaran, comment="#")
     assert df["norad"].tolist() == [2, 41591]
+
+
+def test_tanggal_luncur_presisi_bulan_dan_tahun_tidak_hilang():
+    ldate = pd.Series(["1957 Oct  4 1928:34", "1998 Nov 20?", "1962 Mar", "1962", "", None])
+    hasil = bk._tanggal_luncur(ldate).tolist()
+    assert hasil[:4] == ["1957-10-04", "1998-11-20", "1962-03", "1962"]
+    assert pd.isna(hasil[4]) and pd.isna(hasil[5])
