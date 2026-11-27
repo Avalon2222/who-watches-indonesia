@@ -63,10 +63,18 @@ def di_dalam_poligon(lat, lon, poligon: list[tuple[float, float]] = POLIGON_INDO
     return di_dalam
 
 
+def _bungkus_bujur(lon: np.ndarray) -> np.ndarray:
+    """Bujur ke rentang -180..180; 180 tetap 180 (bukan -180) supaya tidak berpindah sisi peta."""
+    hasil = (lon + 180.0) % 360.0 - 180.0
+    return np.where((hasil == -180.0) & (lon > 0), 180.0, hasil)
+
+
 def di_atas_indonesia(lat, lon) -> np.ndarray:
     """True bila titik (lat, lon) berada di dalam poligon Indonesia. Kotak pembatas dipakai sebagai saringan awal."""
     # Lintang skalar dengan bujur berupa array dulu berakhir IndexError saat menyaring kotak.
     lat, lon = np.broadcast_arrays(np.asarray(lat, dtype=float), np.asarray(lon, dtype=float))
+    # Bujur di luar -180..180 (mis. 466,8 atau -253,2 dari jejak yang tidak dibungkus) tetap titik yang sama.
+    lon = _bungkus_bujur(lon)
     kotak = (lat >= LAT_MIN) & (lat <= LAT_MAX) & (lon >= LON_MIN) & (lon <= LON_MAX)
     hasil = np.zeros(lat.shape, dtype=bool)
     if kotak.any():
