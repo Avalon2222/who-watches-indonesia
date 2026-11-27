@@ -85,7 +85,7 @@ def di_atas_indonesia(lat, lon) -> np.ndarray:
 def di_kawasan(lat, lon) -> np.ndarray:
     """True bila titik berada di kawasan sekitar Indonesia (kotak yang lebih luas untuk peta)."""
     lat = np.asarray(lat, dtype=float)
-    lon = np.asarray(lon, dtype=float)
+    lon = _bungkus_bujur(np.asarray(lon, dtype=float))
     return (lat >= KAWASAN["lat_min"]) & (lat <= KAWASAN["lat_max"]) & (lon >= KAWASAN["lon_min"]) & (lon <= KAWASAN["lon_max"])
 
 
