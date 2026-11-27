@@ -1,6 +1,7 @@
 """Uji penerjemahan kode GCAT ke label aplikasi, dan penggabungan dengan katalog di repo."""
 
 import pandas as pd
+import pytest
 
 from src import klasifikasi, muat_data, orbit
 
@@ -102,3 +103,8 @@ def test_kode_gcat_huruf_kecil_tetap_dikenali():
     assert klasifikasi.label_misi(" img-r? ") == "Pencitraan radar (SAR)"
     assert klasifikasi.label_operator("d") == "Militer"
     assert klasifikasi.label_operator("b") == "Komersial"
+
+
+@pytest.mark.parametrize("kategori,misi", [("COM / MET", "Komunikasi"), ("IMG-R ?", "Pencitraan radar (SAR)"), ("SIG */COM", "Intai sinyal (SIGINT)")])
+def test_kode_dengan_spasi_sebelum_pemisah_tetap_dikenali(kategori, misi):
+    assert klasifikasi.label_misi(kategori) == misi

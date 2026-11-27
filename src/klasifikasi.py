@@ -83,7 +83,8 @@ def kode_dasar(kategori_gcat: str) -> str:
     if not isinstance(kategori_gcat, str):
         return "-"  # NaN dari pandas, jangan sampai jadi kode "nan"
     k = kategori_gcat.strip().upper()  # "img-r" dari input manual tetap dikenali
-    k = re.split(r"[/?*]", k)[0]
+    # Strip lagi setelah dipotong: "COM / MET" dan "IMG-R ?" menyisakan spasi yang membuat kodenya tidak dikenali.
+    k = re.split(r"[/?*]", k)[0].strip()
     return k or "-"
 
 
