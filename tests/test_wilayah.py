@@ -70,3 +70,9 @@ def test_lintang_skalar_dengan_banyak_bujur():
     hasil = wilayah.di_atas_indonesia(-6.2, np.array([106.8, 90.0, 150.0]))
     assert hasil.tolist() == [True, False, False]
     assert wilayah.di_dalam_poligon(np.array([-6.2, 1.35]), 103.8).tolist() == [True, False]
+
+
+def test_bujur_di_luar_rentang_tetap_dikenali():
+    # Jakarta dengan bujur yang belum dibungkus (+360 / -360).
+    hasil = wilayah.di_atas_indonesia(np.array([-6.2, -6.2, 1.35]), np.array([466.8, -253.2, 463.8]))
+    assert hasil.tolist() == [True, True, False]
