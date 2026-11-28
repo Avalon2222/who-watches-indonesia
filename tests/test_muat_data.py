@@ -200,3 +200,18 @@ def test_gabungkan_nama_negara_kosong_di_tabel_jatuh_ke_kode():
     hasil = muat_data.gabungkan(tle, katalog, negara)
     assert hasil.iloc[0]["negara"] == "US"
     assert hasil.iloc[0]["bendera"] == "🛰️"
+
+
+def test_gabungkan_norad_katalog_berupa_teks_tetap_bertemu():
+    tle = pd.DataFrame({
+        "norad": [25544], "nama": ["ISS (ZARYA)"], "line1": ["1"], "line2": ["2"],
+        "epoch": [datetime(2026, 11, 1, tzinfo=timezone.utc)], "inklinasi_deg": [51.6], "mean_motion": [15.5],
+    })
+    baris = {"negara_kode": "US", "nama_gcat": "ISS", "pemilik": "NASA", "kelas": "C", "kategori_gcat": "SS",
+             "program": "ISS", "orbit_gcat": "LEO", "tanggal_luncur": "1998"}
+    katalog = pd.DataFrame([{"norad": "25544", **baris}, {"norad": "tidak-sah", **baris}])
+    negara = pd.DataFrame({"kode_gcat": ["US"], "negara": ["Amerika Serikat"], "bendera": ["🇺🇸"]})
+    hasil = muat_data.gabungkan(tle, katalog, negara)
+    assert len(hasil) == 1
+    assert hasil.iloc[0]["negara"] == "Amerika Serikat"
+    assert bool(hasil.iloc[0]["terkatalog"]) is True
