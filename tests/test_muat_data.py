@@ -215,3 +215,18 @@ def test_gabungkan_norad_katalog_berupa_teks_tetap_bertemu():
     assert len(hasil) == 1
     assert hasil.iloc[0]["negara"] == "Amerika Serikat"
     assert bool(hasil.iloc[0]["terkatalog"]) is True
+
+
+def test_muat_catatan_indonesia_norad_ganda_atau_kosong_dibersihkan(tmp_path, monkeypatch):
+    palsu = tmp_path / "catatan.csv"
+    palsu.write_text(
+        "norad,nama,operator,fungsi,orbit,diluncurkan,catatan,sumber,url_sumber\n"
+        "29709,LAPAN-A1 lama,LAPAN,Uji,LEO,2007,,,\n"
+        "29709,LAPAN-A1,LAPAN,Uji,LEO,2007-01-10,,,\n"
+        ",Tanpa nomor,-,-,-,-,,,\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(muat_data, "FILE_CATATAN_ID", palsu)
+    df = muat_data.muat_catatan_indonesia()
+    assert df["norad"].tolist() == [29709]
+    assert df.iloc[0]["nama"] == "LAPAN-A1"

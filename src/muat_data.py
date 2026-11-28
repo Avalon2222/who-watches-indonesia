@@ -125,7 +125,9 @@ def muat_catatan_indonesia() -> pd.DataFrame:
     for kolom in df.columns:
         if _kolom_teks(df[kolom]):
             df[kolom] = df[kolom].fillna("")
-    return df
+    # Catatan tanpa nomor NORAD tidak bisa dipasangkan, dan nomor yang tercatat dua kali akan
+    # menggandakan satelitnya di tabel Indonesia saat di-merge; pakai catatan terakhir.
+    return df.dropna(subset=["norad"]).drop_duplicates("norad", keep="last").reset_index(drop=True)
 
 
 def gabungkan(df_tle: pd.DataFrame, katalog: pd.DataFrame, negara: pd.DataFrame) -> pd.DataFrame:
