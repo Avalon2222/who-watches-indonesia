@@ -150,8 +150,12 @@ def gabungkan(df_tle: pd.DataFrame, katalog: pd.DataFrame, negara: pd.DataFrame)
     # Kunci tabel negara dirapikan dengan cara yang sama seperti negara_kode di atas; " id" atau
     # "us" hasil suntingan manual di kode_negara.csv dulu membuat negaranya tampil sebagai kode saja.
     kode = negara["kode_gcat"].astype(str).str.strip().str.upper()
-    peta_nama = dict(zip(kode, negara["negara"]))
-    peta_bendera = dict(zip(kode, negara["bendera"]))
+    # Nama atau bendera yang kosong di kode_negara.csv (sel kosong jadi "") jangan ikut dipetakan;
+    # dulu negaranya tampil sebagai teks kosong, padahal kodenya masih bisa ditampilkan.
+    nama_negara = negara["negara"].astype(str).str.strip()
+    bendera = negara["bendera"].astype(str).str.strip()
+    peta_nama = {k: v for k, v in zip(kode, nama_negara) if v}
+    peta_bendera = {k: v for k, v in zip(kode, bendera) if v}
     df["negara"] = df["negara_kode"].map(peta_nama).fillna(df["negara_kode"].where(df["negara_kode"] != "-", "Belum terkatalog"))
     df["bendera"] = df["negara_kode"].map(peta_bendera).fillna("🛰️")
     df["jenis_orbit"] = [orbit.jenis_orbit(mm, inc) for mm, inc in zip(df["mean_motion"], df["inklinasi_deg"])]

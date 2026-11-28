@@ -187,3 +187,16 @@ def test_epoch_tle_hari_366_hanya_di_tahun_kabisat():
     assert orbit._epoch_tle(baris1) == datetime(2024, 12, 31, 12, tzinfo=timezone.utc)
     with pytest.raises(ValueError):
         orbit._epoch_tle(baris1.replace("24366", "26366"))
+
+
+def test_gabungkan_nama_negara_kosong_di_tabel_jatuh_ke_kode():
+    tle = pd.DataFrame({
+        "norad": [1], "nama": ["A"], "line1": ["1"], "line2": ["2"],
+        "epoch": [datetime(2026, 11, 1, tzinfo=timezone.utc)], "inklinasi_deg": [51.6], "mean_motion": [15.5],
+    })
+    katalog = pd.DataFrame([{"norad": 1, "negara_kode": "US", "nama_gcat": "X", "pemilik": "-", "kelas": "B",
+                             "kategori_gcat": "COM", "program": "-", "orbit_gcat": "LEO", "tanggal_luncur": "2020"}])
+    negara = pd.DataFrame({"kode_gcat": ["US"], "negara": [""], "bendera": [" "]})
+    hasil = muat_data.gabungkan(tle, katalog, negara)
+    assert hasil.iloc[0]["negara"] == "US"
+    assert hasil.iloc[0]["bendera"] == "🛰️"
